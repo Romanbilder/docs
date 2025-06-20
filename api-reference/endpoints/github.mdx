@@ -1,0 +1,119 @@
+---
+title: GitHub Endpoint
+description: API reference for integrating with GitHub repositories and webhooks.
+---
+
+# GitHub Endpoint
+
+The GitHub endpoint allows Clipron AI to integrate with your GitHub repositories, enabling features like automatic analysis on push, pull request comments, and status checks.
+
+## Link GitHub Repository
+
+Link a GitHub repository to your Clipron AI project. This typically involves providing the repository details and authorizing Clipron AI to access it.
+
+### Request
+
+`POST /api/v1/github/link`
+
+### Headers
+
+*   `Authorization: Bearer YOUR_JWT_TOKEN`
+*   `Content-Type: application/json`
+
+### Body
+
+```json
+{
+  "repository_url": "https://github.com/your-org/your-repo",
+  "installation_id": "github_app_installation_id"
+}
+```
+
+### Response
+
+`200 OK`
+
+```json
+{
+  "project_id": "proj_456def",
+  "repository_name": "your-org/your-repo",
+  "status": "linked"
+}
+```
+
+### Errors
+
+*   `400 Bad Request`: If the repository URL is invalid or installation ID is missing.
+*   `401 Unauthorized`: If no valid authentication token is provided.
+*   `403 Forbidden`: If the user does not have permission to link the repository.
+
+## Unlink GitHub Repository
+
+Unlink a previously linked GitHub repository from your Clipron AI project.
+
+### Request
+
+`POST /api/v1/github/unlink`
+
+### Headers
+
+*   `Authorization: Bearer YOUR_JWT_TOKEN`
+*   `Content-Type: application/json`
+
+### Body
+
+```json
+{
+  "project_id": "proj_456def"
+}
+```
+
+### Response
+
+`200 OK`
+
+```json
+{
+  "project_id": "proj_456def",
+  "status": "unlinked"
+}
+```
+
+### Errors
+
+*   `400 Bad Request`: If the project ID is invalid.
+*   `401 Unauthorized`: If no valid authentication token is provided.
+*   `403 Forbidden`: If the user does not have permission to unlink the repository.
+
+## GitHub Webhook Endpoint
+
+This endpoint receives webhook events from GitHub, triggering actions like code analysis. This endpoint is typically configured in your GitHub repository settings.
+
+### Request
+
+`POST /api/v1/github/webhook`
+
+### Headers
+
+*   `X-GitHub-Event`: The type of GitHub event (e.g., `push`, `pull_request`).
+*   `X-Hub-Signature-256`: HMAC hex digest of the request body, used for verification.
+*   `Content-Type: application/json`
+
+### Body
+
+(GitHub webhook payload - varies by event type)
+
+### Response
+
+`200 OK` (or `202 Accepted` if processing asynchronously)
+
+```json
+{
+  "message": "Webhook received and processing initiated."
+}
+```
+
+### Errors
+
+*   `400 Bad Request`: If the payload is invalid or signature verification fails.
+*   `403 Forbidden`: If the signature is invalid.

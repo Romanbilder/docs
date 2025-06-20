@@ -1,0 +1,44 @@
+---
+title: JWT Tokens
+description: Understanding and using JSON Web Tokens (JWT) for authentication with Clipron AI API.
+---
+
+# JWT Tokens
+
+JSON Web Tokens (JWT) are a compact, URL-safe means of representing claims to be transferred between two parties. In the Clipron AI API, JWTs are used for secure authentication and authorization.
+
+## What is a JWT?
+
+A JWT consists of three parts separated by dots (`.`):
+
+1.  **Header:** Contains the token type (JWT) and the signing algorithm (e.g., HS256, RS256).
+2.  **Payload:** Contains claims about the entity (e.g., user) and additional data. Common claims include:
+    *   `sub` (subject): The principal that is the subject of the JWT (e.g., user ID).
+    *   `exp` (expiration time): The time after which the JWT expires.
+    *   `iat` (issued at time): The time at which the JWT was issued.
+    *   `iss` (issuer): The entity that issued the JWT.
+3.  **Signature:** Used to verify that the sender of the JWT is who it says it is and to ensure that the message wasn't changed along the way.
+
+## Obtaining a JWT
+
+After successful authentication (e.g., via username/password or OAuth), the Clipron AI API will return a JWT. This token should be securely stored on the client-side (e.g., in `localStorage` or `sessionStorage` for web applications, or securely in mobile apps).
+
+## Using a JWT for API Requests
+
+To authenticate your API requests, include the JWT in the `Authorization` header of your HTTP requests, prefixed with `Bearer`.
+
+```http
+GET /api/v1/users/me
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+```
+
+## Token Expiration and Refresh
+
+JWTs have an expiration time (`exp` claim). Once a token expires, it can no longer be used for authentication. You will need to obtain a new token. The Clipron AI API may support refresh tokens to allow clients to obtain new access tokens without re-authenticating the user.
+
+## Security Considerations
+
+*   **Store Securely:** Never expose JWTs in public code or insecure storage.
+*   **HTTPS Only:** Always transmit JWTs over HTTPS to prevent interception.
+*   **Short Lifespan:** Use short-lived access tokens to minimize the impact of token compromise.
+*   **Revocation:** Implement mechanisms to revoke tokens if necessary (e.g., on logout or security breach).

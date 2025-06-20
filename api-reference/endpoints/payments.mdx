@@ -1,0 +1,200 @@
+---
+title: Payments Endpoint
+description: API reference for managing payment methods and processing transactions.
+---
+
+# Payments Endpoint
+
+The Payments endpoint allows you to manage payment methods, process credit purchases, and view payment history within the Clipron AI platform.
+
+## Add Payment Method
+
+Add a new payment method (e.g., credit card) to your account. This typically involves securely tokenizing card details via a payment gateway.
+
+### Request
+
+`POST /api/v1/payments/methods`
+
+### Headers
+
+*   `Authorization: Bearer YOUR_JWT_TOKEN`
+*   `Content-Type: application/json`
+
+### Body
+
+```json
+{
+  "payment_token": "tok_visa_xxxx",
+  "billing_details": {
+    "name": "John Doe",
+    "address": {
+      "line1": "123 Main St",
+      "city": "Anytown",
+      "state": "CA",
+      "zip": "90210",
+      "country": "US"
+    }
+  }
+}
+```
+
+### Response
+
+`201 Created`
+
+```json
+{
+  "id": "pm_abc123",
+  "type": "card",
+  "card_brand": "visa",
+  "last4": "4242",
+  "is_default": true,
+  "created_at": "2023-06-20T15:00:00Z"
+}
+```
+
+### Errors
+
+*   `400 Bad Request`: If payment token or billing details are invalid.
+*   `401 Unauthorized`: If no valid authentication token is provided.
+*   `403 Forbidden`: If the token is valid but does not have access.
+
+## Get Payment Methods
+
+Retrieve a list of payment methods associated with your account.
+
+### Request
+
+`GET /api/v1/payments/methods`
+
+### Headers
+
+*   `Authorization: Bearer YOUR_JWT_TOKEN`
+
+### Response
+
+`200 OK`
+
+```json
+[
+  {
+    "id": "pm_abc123",
+    "type": "card",
+    "card_brand": "visa",
+    "last4": "4242",
+    "is_default": true,
+    "created_at": "2023-06-20T15:00:00Z"
+  },
+  {
+    "id": "pm_def456",
+    "type": "card",
+    "card_brand": "mastercard",
+    "last4": "1111",
+    "is_default": false,
+    "created_at": "2023-06-10T10:00:00Z"
+  }
+]
+```
+
+### Errors
+
+*   `401 Unauthorized`: If no valid authentication token is provided.
+
+## Purchase Credits
+
+Initiate a purchase of credits using a specified payment method.
+
+### Request
+
+`POST /api/v1/payments/purchase-credits`
+
+### Headers
+
+*   `Authorization: Bearer YOUR_JWT_TOKEN`
+*   `Content-Type: application/json`
+
+### Body
+
+```json
+{
+  "amount": 1000,
+  "currency": "USD",
+  "payment_method_id": "pm_abc123"
+}
+```
+
+### Response
+
+`200 OK`
+
+```json
+{
+  "transaction_id": "txn_xyz789",
+  "status": "completed",
+  "credits_added": 1000,
+  "new_balance": 2500,
+  "timestamp": "2023-06-20T16:00:00Z"
+}
+```
+
+### Errors
+
+*   `400 Bad Request`: If amount, currency, or payment method is invalid.
+*   `401 Unauthorized`: If no valid authentication token is provided.
+*   `402 Payment Required`: If the payment fails (e.g., insufficient funds, declined card).
+*   `403 Forbidden`: If the token is valid but does not have access.
+
+## Get Payment History
+
+Retrieve a history of all payment transactions (purchases, refunds).
+
+### Request
+
+`GET /api/v1/payments/history`
+
+### Headers
+
+*   `Authorization: Bearer YOUR_JWT_TOKEN`
+
+### Query Parameters
+
+*   `limit` (optional): Maximum number of transactions to return (default: 100).
+*   `offset` (optional): Number of transactions to skip (for pagination).
+*   `start_date` (optional): Filter transactions from this date (ISO 8601 format).
+*   `end_date` (optional): Filter transactions up to this date (ISO 8601 format).
+
+### Response
+
+`200 OK`
+
+```json
+{
+  "total_payments": 2,
+  "payments": [
+    {
+      "id": "pay_123",
+      "type": "purchase",
+      "amount": 25.00,
+      "currency": "USD",
+      "status": "completed",
+      "timestamp": "2023-06-20T16:00:00Z",
+      "description": "1000 credits pack"
+    },
+    {
+      "id": "pay_456",
+      "type": "purchase",
+      "amount": 10.00,
+      "currency": "USD",
+      "status": "completed",
+      "timestamp": "2023-05-01T09:00:00Z",
+      "description": "500 credits pack"
+    }
+  ]
+}
+```
+
+### Errors
+
+*   `401 Unauthorized`: If no valid authentication token is provided.
+*   `403 Forbidden`: If the token is valid but does not have access.
+*   `400 Bad Request`: If query parameters are invalid.

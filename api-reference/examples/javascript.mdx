@@ -1,0 +1,137 @@
+---
+title: JavaScript Examples
+description: Practical JavaScript examples for interacting with the Clipron AI API.
+---
+
+# JavaScript Examples
+
+This section provides practical examples of how to interact with the Clipron AI API using JavaScript. These examples demonstrate common API operations and can be used in web applications (browser) or Node.js environments.
+
+## Setup
+
+For Node.js, you might use `node-fetch` or `axios`. For browser environments, `fetch` API is built-in.
+
+```javascript
+// For Node.js (if using node-fetch)
+// npm install node-fetch
+// const fetch = require('node-fetch');
+```
+
+## Authentication
+
+### Get JWT Token (Example)
+
+```javascript
+async function login(username, password) {
+  const response = await fetch('https://api.clipron.com/v1/auth/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ username, password }),
+  });
+  const data = await response.json();
+  if (response.ok) {
+    return data.access_token;
+  } else {
+    throw new Error(data.message || 'Login failed');
+  }
+}
+
+// Usage
+// login('your_username', 'your_password')
+//   .then(token => console.log('JWT Token:', token))
+//   .catch(error => console.error('Login error:', error));
+```
+
+## Helper Function for Authenticated Requests
+
+```javascript
+async function authenticatedFetch(url, method = 'GET', body = null, token) {
+  const headers = {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  };
+
+  const options = {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : null,
+  };
+
+  const response = await fetch(url, options);
+  const data = await response.json();
+
+  if (response.ok) {
+    return data;
+  } else {
+    throw new Error(data.message || `API Error: ${response.status}`);
+  }
+}
+```
+
+## Users Endpoint
+
+### Get Current User Profile
+
+```javascript
+// Assuming you have a 'token' variable from login
+// authenticatedFetch('https://api.clipron.com/v1/users/me', 'GET', null, token)
+//   .then(userProfile => console.log('User Profile:', userProfile))
+//   .catch(error => console.error('Error fetching user profile:', error));
+```
+
+### Update User Profile
+
+```javascript
+// Assuming you have a 'token' variable
+// const updatedProfile = {
+//   first_name: 'Jane',
+//   last_name: 'Doe'
+// };
+// authenticatedFetch('https://api.clipron.com/v1/users/me', 'PUT', updatedProfile, token)
+//   .then(response => console.log('Profile updated:', response))
+//   .catch(error => console.error('Error updating profile:', error));
+```
+
+## Analysis Endpoint
+
+### Start a New Code Analysis
+
+```javascript
+// Assuming you have a 'token' variable
+// const analysisPayload = {
+//   project_id: 'proj_123abc',
+//   repository_url: 'https://github.com/your-org/your-repo',
+//   branch: 'main'
+// };
+// authenticatedFetch('https://api.clipron.com/v1/analysis/start', 'POST', analysisPayload, token)
+//   .then(response => console.log('Analysis started:', response))
+//   .catch(error => console.error('Error starting analysis:', error));
+```
+
+### Get Analysis Status
+
+```javascript
+// Assuming you have a 'token' variable and 'analysisId'
+// authenticatedFetch(`https://api.clipron.com/v1/analysis/status/${analysisId}`, 'GET', null, token)
+//   .then(status => console.log('Analysis Status:', status))
+//   .catch(error => console.error('Error getting analysis status:', error));
+```
+
+## Credits Endpoint
+
+### Get Current Credit Balance
+
+```javascript
+// Assuming you have a 'token' variable
+// authenticatedFetch('https://api.clipron.com/v1/credits/balance', 'GET', null, token)
+//   .then(balance => console.log('Credit Balance:', balance))
+//   .catch(error => console.error('Error fetching credit balance:', error));
+```
+
+## General Tips for JavaScript
+
+*   **Error Handling:** Always include `try...catch` blocks or `.catch()` for asynchronous operations.
+*   **Environment Variables:** For sensitive information like API keys or client secrets, use environment variables (e.g., `process.env.API_KEY` in Node.js, or build-time environment variables for frontend).
+*   **CORS:** If running in a browser, ensure your backend API has proper Cross-Origin Resource Sharing (CORS) headers configured to allow requests from your frontend domain.

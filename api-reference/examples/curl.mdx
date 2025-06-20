@@ -1,0 +1,122 @@
+---
+title: cURL Examples
+description: Practical cURL examples for interacting with the Clipron AI API.
+---
+
+# cURL Examples
+
+This section provides practical examples of how to interact with the Clipron AI API using `cURL`. These examples demonstrate common API operations and can be easily adapted for your specific needs.
+
+## Authentication
+
+### Get JWT Token (Example)
+
+Assuming you have an authentication endpoint that returns a JWT.
+
+```bash
+curl -X POST "https://api.clipron.com/v1/auth/login" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "username": "your_username",
+           "password": "your_password"
+         }'
+```
+
+**Response (Example):**
+
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "bearer",
+  "expires_in": 3600
+}
+```
+
+## Users Endpoint
+
+### Get Current User Profile
+
+```bash
+curl -X GET "https://api.clipron.com/v1/users/me" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### Update User Profile
+
+```bash
+curl -X PUT "https://api.clipron.com/v1/users/me" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "first_name": "Jane",
+           "last_name": "Doe"
+         }'
+```
+
+## Analysis Endpoint
+
+### Start a New Code Analysis
+
+```bash
+curl -X POST "https://api.clipron.com/v1/analysis/start" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "project_id": "proj_123abc",
+           "repository_url": "https://github.com/your-org/your-repo",
+           "branch": "main"
+         }'
+```
+
+### Get Analysis Status
+
+```bash
+curl -X GET "https://api.clipron.com/v1/analysis/status/analysis_id_xyz" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### Get Analysis Report
+
+```bash
+curl -X GET "https://api.clipron.com/v1/analysis/report/analysis_id_xyz" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+     -H "Accept: application/json" # Or application/pdf, text/csv etc.
+```
+
+## Credits Endpoint
+
+### Get Current Credit Balance
+
+```bash
+curl -X GET "https://api.clipron.com/v1/credits/balance" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+### Get Credit History
+
+```bash
+curl -X GET "https://api.clipron.com/v1/credits/history?limit=5&start_date=2023-01-01" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+## Payments Endpoint
+
+### Purchase Credits
+
+```bash
+curl -X POST "https://api.clipron.com/v1/payments/purchase-credits" \
+     -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "amount": 500,
+           "currency": "USD",
+           "payment_method_id": "pm_abc123"
+         }'
+```
+
+## General Tips for cURL
+
+*   **Replace Placeholders:** Always replace `YOUR_JWT_TOKEN`, `your_username`, `your_password`, `project_id_xyz`, `analysis_id_xyz`, etc., with your actual values.
+*   **Error Handling:** Check the HTTP status code and response body for error messages.
+*   **JSON Formatting:** Use tools like `jq` (`curl ... | jq .`) to pretty-print JSON responses for better readability.
+*   **HTTPS:** Always use `https://` for secure communication.

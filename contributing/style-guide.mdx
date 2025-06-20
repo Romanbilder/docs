@@ -1,0 +1,80 @@
+---
+title: Documentation Style Guide
+description: Guidelines for writing clear, consistent, and effective documentation for Clipron AI.
+---
+
+# Documentation Style Guide
+
+This style guide provides guidelines for writing clear, consistent, and effective documentation for Clipron AI. Adhering to these standards ensures a unified voice and improves readability for our users.
+
+## General Principles
+
+*   **Clarity:** Be precise and unambiguous. Avoid jargon where simpler terms suffice.
+*   **Conciseness:** Get straight to the point. Remove unnecessary words or phrases.
+*   **Consistency:** Maintain consistent terminology, formatting, and tone across all documents.
+*   **Accuracy:** Ensure all technical information, code examples, and instructions are correct and up-to-date.
+*   **User-Centric:** Write for the user. Anticipate their questions and provide actionable solutions.
+
+## Tone and Voice
+
+*   **Professional but Approachable:** Maintain a professional tone, but avoid overly formal or academic language.
+*   **Direct and Action-Oriented:** Use active voice and direct commands (e.g., "Click the button," "Configure the setting").
+*   **Second Person:** Address the reader directly using "you" (e.g., "You can find your API key...").
+*   **Positive Language:** Frame instructions positively.
+
+## Formatting and Markdown
+
+*   **Headings:** Use ATX headings (`#`, `##`, `###`, etc.) for structure.
+    *   `#` for page title (only one per page)
+    *   `##` for major sections
+    *   `###` for sub-sections
+*   **Bold:** Use `**text**` for emphasis, keywords, UI elements (e.g., **Save** button), and file names.
+*   **Italics:** Use `*text*` sparingly for minor emphasis or foreign terms.
+*   **Code:**
+    *   Inline code: Use backticks `` `code` `` for file paths, variable names, commands, and short code snippets.
+    *   Code blocks: Use fenced code blocks (```language) for longer code examples. Always specify the language.
+*   **Lists:** Use ordered lists for sequential steps and unordered lists for non-sequential items.
+*   **Links:** Use descriptive link text.
+    *   Internal links: `[Link Text](/path/to/page)`
+    *   External links: `[Link Text](https://example.com)`
+
+## Mintlify Components
+
+Leverage Mintlify's custom components for enhanced readability and functionality.
+
+*   **`Note`, `Info`, `Warning`, `Tip`:** Use these callout blocks for important information, tips, warnings, or notes.
+    *   `<Note>`: General information or side notes.
+    *   `<Info>`: Important details or background information.
+    *   `<Warning>`: Potential issues, risks, or irreversible actions.
+    *   `<Tip>`: Helpful advice or shortcuts.
+*   **`CardGroup` and `Card`:** For grouping related content or navigation links visually.
+*   **`AccordionGroup` and `Accordion`:** For collapsible content, useful for FAQs or detailed explanations.
+*   **`Steps` and `Step`:** For outlining sequential processes.
+*   **`Tabs` and `Tab`:** For presenting alternative content (e.g., code examples in different languages).
+*   **`CodeGroup`:** For displaying code examples in multiple languages with tabs.
+
+## Terminology
+
+*   **Clipron AI:** Always use "Clipron AI" (two words, capitalized).
+*   **Ron Cortex AI Engine:** Refer to the core engine as "Ron Cortex AI Engine" or "Ron Cortex 2.0".
+*   **Vulnerability:** Use "vulnerability" instead of "bug" when referring to security flaws.
+*   **API:** Always capitalize "API".
+*   **GitHub:** Always capitalize "GitHub".
+
+## Images and Diagrams
+
+*   **Screenshots:**
+    *   Use high-resolution PNGs.
+    *   Crop images to show only relevant content.
+    *   Add descriptive `alt` text for accessibility.
+    *   Update screenshots when the UI changes significantly.
+*   **Diagrams:**
+    *   Use Mermaid syntax for technical diagrams (flowcharts, sequence diagrams).
+    *   Ensure diagrams are clear, legible, and accurately represent the system.
+
+## Review and Quality Assurance
+
+*   **Proofread:** Always proofread your content for grammar, spelling, and punctuation errors.
+*   **Technical Review:** Have technical experts review content for accuracy.
+*   **Link Validation:** Run `mintlify broken-links` regularly to ensure all links are valid.
+*   **Local Preview:** Always preview your changes locally using `mintlify dev` before submitting a pull request.

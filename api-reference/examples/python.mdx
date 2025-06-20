@@ -1,0 +1,136 @@
+---
+title: Python Examples
+description: Practical Python examples for interacting with the Clipron AI API.
+---
+
+# Python Examples
+
+This section provides practical examples of how to interact with the Clipron AI API using Python. These examples use the `requests` library, which is a popular and easy-to-use HTTP client for Python.
+
+## Setup
+
+First, ensure you have the `requests` library installed:
+
+```bash
+pip install requests
+```
+
+## Authentication
+
+### Get JWT Token (Example)
+
+```python
+import requests
+import json
+
+API_BASE_URL = "https://api.clipron.com/v1"
+
+def login(username, password):
+    url = f"{API_BASE_URL}/auth/login"
+    headers = {"Content-Type": "application/json"}
+    payload = {"username": username, "password": password}
+    response = requests.post(url, headers=headers, data=json.dumps(payload))
+    response.raise_for_status() # Raise an exception for HTTP errors
+    return response.json().get("access_token")
+
+# Usage
+# try:
+#     jwt_token = login("your_username", "your_password")
+#     print(f"JWT Token: {jwt_token}")
+# except requests.exceptions.HTTPError as e:
+#     print(f"Login error: {e.response.text}")
+```
+
+## Helper Function for Authenticated Requests
+
+```python
+def authenticated_request(method, endpoint, token, data=None, params=None):
+    url = f"{API_BASE_URL}{endpoint}"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    if data:
+        response = requests.request(method, url, headers=headers, data=json.dumps(data), params=params)
+    else:
+        response = requests.request(method, url, headers=headers, params=params)
+    response.raise_for_status()
+    return response.json()
+```
+
+## Users Endpoint
+
+### Get Current User Profile
+
+```python
+# Assuming you have a 'jwt_token' variable from login
+# try:
+#     user_profile = authenticated_request("GET", "/users/me", jwt_token)
+#     print(f"User Profile: {user_profile}")
+# except requests.exceptions.HTTPError as e:
+#     print(f"Error fetching user profile: {e.response.text}")
+```
+
+### Update User Profile
+
+```python
+# Assuming you have a 'jwt_token' variable
+# updated_profile_data = {
+#     "first_name": "Jane",
+#     "last_name": "Doe"
+# }
+# try:
+#     response = authenticated_request("PUT", "/users/me", jwt_token, data=updated_profile_data)
+#     print(f"Profile updated: {response}")
+# except requests.exceptions.HTTPError as e:
+#     print(f"Error updating profile: {e.response.text}")
+```
+
+## Analysis Endpoint
+
+### Start a New Code Analysis
+
+```python
+# Assuming you have a 'jwt_token' variable
+# analysis_payload = {
+#     "project_id": "proj_123abc",
+#     "repository_url": "https://github.com/your-org/your-repo",
+#     "branch": "main"
+# }
+# try:
+#     response = authenticated_request("POST", "/analysis/start", jwt_token, data=analysis_payload)
+#     print(f"Analysis started: {response}")
+# except requests.exceptions.HTTPError as e:
+#     print(f"Error starting analysis: {e.response.text}")
+```
+
+### Get Analysis Status
+
+```python
+# Assuming you have a 'jwt_token' variable and 'analysis_id'
+# analysis_id = "analysis_id_xyz"
+# try:
+#     status = authenticated_request("GET", f"/analysis/status/{analysis_id}", jwt_token)
+#     print(f"Analysis Status: {status}")
+# except requests.exceptions.HTTPError as e:
+#     print(f"Error getting analysis status: {e.response.text}")
+```
+
+## Credits Endpoint
+
+### Get Current Credit Balance
+
+```python
+# Assuming you have a 'jwt_token' variable
+# try:
+#     balance = authenticated_request("GET", "/credits/balance", jwt_token)
+#     print(f"Credit Balance: {balance}")
+# except requests.exceptions.HTTPError as e:
+#     print(f"Error fetching credit balance: {e.response.text}")
+```
+
+## General Tips for Python
+
+*   **Error Handling:** Always use `try...except requests.exceptions.HTTPError` to catch and handle API errors.
+*   **Environment Variables:** For sensitive information like API keys or client secrets, use environment variables (e.g., `os.environ.get("API_KEY")`).
+*   **JSON Handling:** The `requests` library automatically handles JSON serialization for the `json` parameter in `post`, `put`, etc., and deserialization for `response.json()`.

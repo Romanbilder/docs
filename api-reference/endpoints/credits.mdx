@@ -1,0 +1,92 @@
+---
+title: Credits Endpoint
+description: API reference for managing and querying user credits.
+---
+
+# Credits Endpoint
+
+The Credits endpoint allows you to manage and query the credit balance for your Clipron AI account. Credits are used to perform code analyses and access premium features.
+
+## Get Current Credit Balance
+
+Retrieve the current credit balance for the authenticated user.
+
+### Request
+
+`GET /api/v1/credits/balance`
+
+### Headers
+
+*   `Authorization: Bearer YOUR_JWT_TOKEN`
+
+### Response
+
+`200 OK`
+
+```json
+{
+  "user_id": "user_123abc",
+  "balance": 1500,
+  "unit": "credits",
+  "last_updated": "2023-06-20T10:30:00Z"
+}
+```
+
+### Errors
+
+*   `401 Unauthorized`: If no valid authentication token is provided.
+*   `403 Forbidden`: If the token is valid but does not have access to this resource.
+
+## Get Credit History
+
+Retrieve a history of credit transactions (e.g., credits earned, credits spent on analyses).
+
+### Request
+
+`GET /api/v1/credits/history`
+
+### Headers
+
+*   `Authorization: Bearer YOUR_JWT_TOKEN`
+
+### Query Parameters
+
+*   `limit` (optional): Maximum number of transactions to return (default: 100).
+*   `offset` (optional): Number of transactions to skip (for pagination).
+*   `start_date` (optional): Filter transactions from this date (ISO 8601 format).
+*   `end_date` (optional): Filter transactions up to this date (ISO 8601 format).
+
+### Response
+
+`200 OK`
+
+```json
+{
+  "user_id": "user_123abc",
+  "total_transactions": 5,
+  "transactions": [
+    {
+      "id": "txn_001",
+      "type": "purchase",
+      "amount": 1000,
+      "unit": "credits",
+      "timestamp": "2023-05-01T09:00:00Z",
+      "description": "Credit pack purchase"
+    },
+    {
+      "id": "txn_002",
+      "type": "spent",
+      "amount": -50,
+      "unit": "credits",
+      "timestamp": "2023-05-05T14:15:00Z",
+      "description": "Code analysis for project 'my-repo'"
+    }
+  ]
+}
+```
+
+### Errors
+
+*   `401 Unauthorized`: If no valid authentication token is provided.
+*   `403 Forbidden`: If the token is valid but does not have access to this resource.
+*   `400 Bad Request`: If query parameters are invalid.

@@ -1,0 +1,109 @@
+---
+title: Users Endpoint
+description: API reference for managing user accounts and profiles.
+---
+
+# Users Endpoint
+
+The Users endpoint allows you to manage user accounts and retrieve user profile information within the Clipron AI platform.
+
+## Get Current User Profile
+
+Retrieve the profile information of the authenticated user.
+
+### Request
+
+`GET /api/v1/users/me`
+
+### Headers
+
+*   `Authorization: Bearer YOUR_JWT_TOKEN`
+
+### Response
+
+`200 OK`
+
+```json
+{
+  "id": "user_123abc",
+  "username": "john.doe",
+  "email": "john.doe@example.com",
+  "first_name": "John",
+  "last_name": "Doe",
+  "organization": "Example Corp",
+  "created_at": "2023-01-01T10:00:00Z",
+  "updated_at": "2023-01-15T11:30:00Z"
+}
+```
+
+### Errors
+
+*   `401 Unauthorized`: If no valid authentication token is provided.
+*   `403 Forbidden`: If the token is valid but does not have access to this resource.
+
+## Update User Profile
+
+Update the profile information of the authenticated user.
+
+### Request
+
+`PUT /api/v1/users/me`
+
+### Headers
+
+*   `Authorization: Bearer YOUR_JWT_TOKEN`
+*   `Content-Type: application/json`
+
+### Body
+
+```json
+{
+  "first_name": "Jonathan",
+  "last_name": "Doe",
+  "organization": "New Example Corp"
+}
+```
+
+### Response
+
+`200 OK`
+
+```json
+{
+  "id": "user_123abc",
+  "username": "john.doe",
+  "email": "john.doe@example.com",
+  "first_name": "Jonathan",
+  "last_name": "Doe",
+  "organization": "New Example Corp",
+  "created_at": "2023-01-01T10:00:00Z",
+  "updated_at": "2023-01-20T14:00:00Z"
+}
+```
+
+### Errors
+
+*   `400 Bad Request`: If the request body contains invalid data.
+*   `401 Unauthorized`: If no valid authentication token is provided.
+*   `403 Forbidden`: If the token is valid but does not have access to this resource.
+
+## Delete User Account
+
+Delete the authenticated user's account. This action is irreversible.
+
+### Request
+
+`DELETE /api/v1/users/me`
+
+### Headers
+
+*   `Authorization: Bearer YOUR_JWT_TOKEN`
+
+### Response
+
+`204 No Content`
+
+### Errors
+
+*   `401 Unauthorized`: If no valid authentication token is provided.
+*   `403 Forbidden`: If the token is valid but does not have access to this resource.

@@ -1,0 +1,43 @@
+---
+title: Database Architecture
+description: Overview of the Clipron AI platform's database architecture.
+---
+
+# Database Architecture
+
+This section provides an overview of the database architecture for the Clipron AI platform. It details the types of databases used, their schemas, and how data is managed and accessed.
+
+## Database Technologies
+
+*   **Primary Database:** [Specify Primary Database, e.g., PostgreSQL, MySQL, MongoDB]
+    *   **Purpose:** [Describe its main use, e.g., storing user data, analysis results, project configurations.]
+*   **Secondary Databases/Data Stores (if any):** [Specify other databases, e.g., Redis for caching, Elasticsearch for search]
+    *   **Purpose:** [Describe their specific uses.]
+
+## Schema Design
+
+Provide a high-level overview of the database schema. You can describe key tables/collections and their relationships.
+
+### Key Entities
+
+*   **Users:** Stores user profiles, authentication details, and roles.
+*   **Projects:** Contains information about user projects, linked repositories, and settings.
+*   **Analyses:** Stores details of each code analysis run, including status, parameters, and results.
+*   **Reports:** Stores generated security reports and their associated findings.
+*   **Credits/Payments:** Manages user credit balances and payment transactions.
+
+## Data Access and ORM
+
+Explain how the application interacts with the database, including the use of Object-Relational Mappers (ORMs) or other data access layers.
+
+## Data Migration and Versioning
+
+Describe the strategy for managing database schema changes and migrations.
+
+## Backup and Recovery
+
+Outline the procedures and technologies used for database backups and disaster recovery.
+
+## Security and Compliance
+
+Detail the security measures implemented to protect sensitive data, including encryption, access controls, and compliance with relevant regulations.

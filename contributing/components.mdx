@@ -1,0 +1,148 @@
+---
+title: Component Library
+description: Reference for available Mintlify components and how to use them in Clipron AI documentation.
+---
+
+# Component Library
+
+This section provides a reference for the Mintlify components available for use in the Clipron AI documentation. These components help structure content, improve readability, and add interactive elements.
+
+## Basic Components
+
+### Callouts (`Note`, `Info`, `Warning`, `Tip`)
+
+Used to highlight important information.
+
+```mdx
+<Note>
+  This is a general note.
+</Note>
+
+<Info>
+  This provides important information.
+</Info>
+
+<Warning>
+  This is a warning about potential risks.
+</Warning>
+
+<Tip>
+  This is a helpful tip or shortcut.
+</Tip>
+```
+
+### Code Blocks and Code Groups
+
+For displaying code examples.
+
+```mdx
+```python
+# This is a Python code block
+print("Hello, world!")
+```
+
+<CodeGroup>
+```bash cURL
+curl -X GET "https://api.clipron.com/status"
+```
+
+```javascript JavaScript
+fetch('/api/status');
+```
+
+```python Python
+import requests
+requests.get("https://api.clipron.com/status")
+```
+</CodeGroup>
+```
+
+### Images
+
+Embedding images in your documentation.
+
+```mdx
+<img src="/images/screenshot.png" alt="Description of the screenshot" />
+```
+
+## Layout Components
+
+### Card Group and Card
+
+For creating visually grouped content or navigation links.
+
+```mdx
+<CardGroup cols={2}>
+  <Card title="Card Title 1" icon="home" href="/link1">
+    Description for card 1.
+  </Card>
+  <Card title="Card Title 2" icon="settings" href="/link2">
+    Description for card 2.
+  </Card>
+</CardGroup>
+```
+
+### Accordion Group and Accordion
+
+For creating collapsible sections of content.
+
+```mdx
+<AccordionGroup>
+  <Accordion title="Section 1 Title">
+    Content for section 1.
+  </Accordion>
+  <Accordion title="Section 2 Title">
+    Content for section 2.
+  </Accordion>
+</AccordionGroup>
+```
+
+### Steps and Step
+
+For outlining sequential steps in a process.
+
+```mdx
+<Steps>
+  <Step title="First Action">
+    Perform the first action.
+  </Step>
+  <Step title="Second Action">
+    Perform the second action.
+  </Step>
+</Steps>
+```
+
+### Tabs and Tab
+
+For presenting alternative content in a tabbed interface.
+
+```mdx
+<Tabs>
+  <Tab title="Option A">
+    Content for option A.
+  </Tab>
+  <Tab title="Option B">
+    Content for option B.
+  </Tab>
+</Tabs>
+```
+
+## API Reference Components
+
+Mintlify provides specific components for structuring API documentation, often used in conjunction with an `openapi.json` file. While the full power comes from the OpenAPI integration, you can structure manual API docs using standard Markdown and components like `CodeGroup` for request/response examples.
+
+Refer to the `api-reference/openapi.json` and existing API `.mdx` files for examples of how API documentation is structured.
+
+## Customization
+
+While Mintlify components offer a standard look and feel, some aspects like colors are controlled by the `docs.json` configuration. Ensure your usage aligns with the overall theme defined in `docs.json`.
+
+## Further Reading
+
+For the most up-to-date and comprehensive documentation on Mintlify components, refer to the official Mintlify documentation.
+
+<CardGroup cols={1}>
+  <Card title="Mintlify Components Reference" icon="book" href="https://mintlify.com/docs/components">
+    Official documentation for all available components.
+  </Card>
+</CardGroup>

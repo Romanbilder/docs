@@ -1,0 +1,35 @@
+---
+title: Diagnostic Scripts
+description: Using diagnostic scripts to troubleshoot and gather information for Clipron AI issues.
+---
+
+# Diagnostic Scripts
+
+Clipron AI provides a set of diagnostic scripts to help you troubleshoot common issues and gather essential information when reporting problems to support. These scripts automate the collection of logs, configuration details, and system metrics, making the debugging process more efficient.
+
+## How to Use Diagnostic Scripts
+
+1.  **Locate the Scripts:** Diagnostic scripts are typically found in the `scripts/diagnostics` directory within your Clipron AI installation.
+2.  **Execute the Script:** Open your terminal or command prompt, navigate to the script's directory, and run the script.
+    *   **Linux/macOS:** `bash ./diagnose.sh` (or `python ./diagnose.py` if it's a Python script)
+    *   **Windows:** `.\diagnose.bat` (or `python .\diagnose.py`)
+3.  **Review Output:** The script will usually print information to the console and/or generate a diagnostic file (e.g., `clipron_diagnostic_report.zip`).
+4.  **Share with Support:** When contacting Clipron AI support, attach the generated diagnostic file or copy-paste the relevant console output.
+
+## Common Diagnostic Scripts
+
+*   **`system_info.sh/py`:** Collects basic system information, including OS version, CPU, memory, and disk space.
+*   **`log_collector.sh/py`:** Gathers recent application logs from various services.
+*   **`config_checker.sh/py`:** Verifies your environment configuration files for common errors.
+*   **`network_test.sh/py`:** Performs basic network connectivity tests to Clipron AI services or external dependencies.
+*   **`database_health.sh/py`:** Checks the health and connectivity of your database.
+
+## Important Notes
+
+*   **Permissions:** Ensure the script has execute permissions (e.g., `chmod +x diagnose.sh` on Linux/macOS).
+*   **Sensitive Information:** Some diagnostic scripts might collect sensitive information (e.g., file paths, environment variables). Review the script's output before sharing it, and redact any highly sensitive data if necessary.
+*   **Environment Variables:** Ensure your environment variables are correctly set before running scripts that depend on them.
+
+## Creating Custom Diagnostic Scripts
+
+For advanced users, you can create your own custom diagnostic scripts to gather specific information relevant to your deployment. Refer to the existing scripts for examples and best practices.
