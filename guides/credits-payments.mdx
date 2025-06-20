@@ -1,0 +1,427 @@
+---
+title: 'Credits & Payments'
+description: 'Understanding the credit system, pricing, and payment management'
+---
+
+# Credits & Payments
+
+Clipron AI uses a credit-based system for analysis consumption. This guide explains how credits work, pricing tiers, payment management, and optimization strategies.
+
+## Credit System Overview
+
+<CardGroup cols={2}>
+  <Card title="How Credits Work" icon="coins">
+    Credits are consumed when running security analyses. Different analysis types use different amounts of credits based on complexity and AI model costs.
+  </Card>
+  <Card title="Credit Pricing" icon="dollar-sign">
+    Credits are purchased in packages or included with subscription plans. Unused credits carry over month-to-month with no expiration.
+  </Card>
+</CardGroup>
+
+## Credit Consumption by Analysis Type
+
+### Analysis Type Costs
+
+<AccordionGroup>
+  <Accordion title="Ron AI 2 Mini (Quick Scan)">
+    **2-5 credits per analysis**
+    - **Small files** (< 1,000 lines): 2-3 credits
+    - **Medium projects** (1,000-5,000 lines): 3-4 credits  
+    - **Large projects** (5,000+ lines): 4-5 credits
+    - **Factors**: Code complexity, number of files, language
+  </Accordion>
+  
+  <Accordion title="Ron AI 2 Standard (Comprehensive)">
+    **5-15 credits per analysis**
+    - **Small projects**: 5-8 credits
+    - **Medium projects**: 8-12 credits
+    - **Large projects**: 12-15 credits
+    - **Additional factors**: Dependencies, framework complexity
+  </Accordion>
+  
+  <Accordion title="Ron AI 2 Ultra (Deep Analysis)">
+    **15-50 credits per analysis**
+    - **Small projects**: 15-25 credits
+    - **Medium projects**: 25-35 credits
+    - **Large projects**: 35-50 credits
+    - **Premium features**: Threat modeling, compliance checks
+  </Accordion>
+</AccordionGroup>
+
+### Cost Estimation
+
+Before running an analysis, Clipron AI provides cost estimates:
+
+```json
+{
+  "estimated_cost": {
+    "min_credits": 8,
+    "max_credits": 12,
+    "factors": [
+      "Code size: 3,500 lines",
+      "Language: Python (standard complexity)",
+      "Dependencies: 15 external libraries",
+      "Analysis type: Standard"
+    ]
+  }
+}
+```
+
+## Subscription Plans
+
+### Free Tier
+
+<AccordionGroup>
+  <Accordion title="What's Included">
+    **50 credits per month**
+    - Perfect for trying the platform
+    - Analyze small projects and code snippets
+    - Access to all analysis types
+    - Public repository analysis only
+    - Community support
+  </Accordion>
+  
+  <Accordion title="Limitations">
+    - No private repository access
+    - No API access
+    - Standard support response time
+    - No advanced integrations
+  </Accordion>
+</AccordionGroup>
+
+### Pro Plan ($19/month)
+
+<AccordionGroup>
+  <Accordion title="What's Included">
+    **500 credits per month + additional purchases**
+    - Private repository access
+    - Full API access
+    - Priority support (24h response)
+    - Advanced GitHub integration
+    - Webhook support
+    - Team collaboration features
+  </Accordion>
+  
+  <Accordion title="Best For">
+    - Individual developers
+    - Small teams (1-5 people)
+    - Regular security analysis needs
+    - Professional development workflows
+  </Accordion>
+</AccordionGroup>
+
+### Enterprise Plan (Custom Pricing)
+
+<AccordionGroup>
+  <Accordion title="What's Included">
+    **Custom credit allocation**
+    - Unlimited analyses within allocation
+    - Organization-wide access
+    - SSO integration
+    - Custom integrations
+    - Dedicated support
+    - On-premise deployment options
+    - Custom compliance frameworks
+  </Accordion>
+  
+  <Accordion title="Best For">
+    - Large organizations
+    - Teams with 20+ developers
+    - Strict compliance requirements
+    - Custom integration needs
+  </Accordion>
+</AccordionGroup>
+
+## Payment Management
+
+### Adding Payment Methods
+
+<Steps>
+  <Step title="Navigate to Billing">
+    Go to **Settings** → **Billing** in your dashboard
+  </Step>
+  
+  <Step title="Add Payment Method">
+    Click **"Add Payment Method"** and enter your card details
+  </Step>
+  
+  <Step title="Set as Default">
+    Choose whether to make this your default payment method
+  </Step>
+  
+  <Step title="Verify Card">
+    Complete any verification steps required by your bank
+  </Step>
+</Steps>
+
+### Purchasing Credits
+
+<Tabs>
+  <Tab title="Credit Packages">
+    **One-time credit purchases**
+    
+    | Package | Credits | Price | Price per Credit |
+    |---------|---------|-------|------------------|
+    | Starter | 100 | $10 | $0.10 |
+    | Developer | 500 | $45 | $0.09 |
+    | Professional | 1,000 | $80 | $0.08 |
+    | Enterprise | 5,000 | $350 | $0.07 |
+    
+    Credits never expire and can be used across all analysis types.
+  </Tab>
+  
+  <Tab title="Auto-Recharge">
+    **Automatic credit top-ups**
+    
+    Set up automatic credit purchases when your balance gets low:
+    
+    ```json
+    {
+      "auto_recharge": {
+        "enabled": true,
+        "trigger_threshold": 50,
+        "recharge_amount": 500,
+        "max_monthly_recharge": 2000
+      }
+    }
+    ```
+    
+    - **Trigger**: When credits drop below threshold
+    - **Amount**: How many credits to purchase
+    - **Limit**: Maximum monthly auto-purchases
+  </Tab>
+  
+  <Tab title="Team Billing">
+    **Organization-wide billing**
+    
+    For teams and organizations:
+    - Centralized billing management
+    - Usage tracking per team member
+    - Budget controls and alerts
+    - Detailed usage analytics
+    - Invoice generation for accounting
+  </Tab>
+</Tabs>
+
+### Payment Security
+
+<CardGroup cols={2}>
+  <Card title="Stripe Integration" icon="credit-card">
+    **Industry-standard payment processing**
+    - PCI DSS compliant
+    - Encrypted card storage
+    - Fraud detection
+    - Global payment methods
+  </Card>
+  <Card title="Data Protection" icon="shield-check">
+    **Your financial data is secure**
+    - No card details stored on our servers
+    - Tokenized payment processing
+    - Regular security audits
+    - GDPR compliant
+  </Card>
+</CardGroup>
+
+## Usage Tracking and Analytics
+
+### Dashboard Analytics
+
+<AccordionGroup>
+  <Accordion title="Credit Usage Overview">
+    **Monitor your credit consumption**
+    - Current balance and usage trends
+    - Credits used by analysis type
+    - Monthly consumption patterns
+    - Cost per analysis breakdown
+    - Projected monthly usage
+  </Accordion>
+  
+  <Accordion title="Detailed Usage Reports">
+    **Comprehensive usage analytics**
+    ```json
+    {
+      "usage_summary": {
+        "period": "last_30_days",
+        "total_credits_used": 245,
+        "total_analyses": 52,
+        "average_credits_per_analysis": 4.7,
+        "breakdown_by_type": {
+          "mini": {"analyses": 35, "credits": 105},
+          "standard": {"analyses": 15, "credits": 120},
+          "ultra": {"analyses": 2, "credits": 20}
+        }
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Cost Optimization Insights">
+    **Recommendations to optimize spending**
+    - Suggest more cost-effective analysis types
+    - Identify frequently analyzed code
+    - Recommend caching strategies
+    - Usage pattern analysis
+  </Accordion>
+</AccordionGroup>
+
+### Export and Reporting
+
+<Tabs>
+  <Tab title="Usage Reports">
+    **Download detailed usage data**
+    - CSV export of all analyses
+    - Credit consumption by project
+    - Team member usage breakdown
+    - Monthly/quarterly summaries
+  </Tab>
+  
+  <Tab title="Billing History">
+    **Complete payment records**
+    - Invoice downloads (PDF)
+    - Payment transaction history
+    - Credit purchase records
+    - Subscription change history
+  </Tab>
+  
+  <Tab title="API Usage">
+    **Programmatic usage tracking**
+    ```bash
+    curl -H "Authorization: Bearer <token>" \
+         "https://clipron.com/api/usage/summary?period=last_month"
+    ```
+  </Tab>
+</Tabs>
+
+## Cost Optimization Strategies
+
+### Smart Analysis Selection
+
+<AccordionGroup>
+  <Accordion title="Layered Security Approach">
+    **Use different analysis types strategically**
+    - **Daily development**: Mini analysis for quick feedback
+    - **Feature completion**: Standard analysis for thorough review
+    - **Production releases**: Ultra analysis for critical validation
+    - **CI/CD integration**: Mini analysis for automated checks
+  </Accordion>
+  
+  <Accordion title="Targeted Analysis">
+    **Focus on high-risk code**
+    - Analyze only security-critical components with Ultra
+    - Use Standard for business logic
+    - Use Mini for utility functions and helpers
+    - Skip documentation and test files
+  </Accordion>
+  
+  <Accordion title="Efficient Scheduling">
+    **Optimize analysis timing**
+    - Batch similar analyses together
+    - Use scheduled analyses during off-peak hours
+    - Avoid redundant analyses of unchanged code
+    - Cache results for similar code patterns
+  </Accordion>
+</AccordionGroup>
+
+### Team Optimization
+
+<CardGroup cols={2}>
+  <Card title="Shared Resources" icon="users">
+    **Coordinate team usage**
+    - Share analysis results across team
+    - Avoid duplicate analyses
+    - Use organization-wide caching
+    - Implement approval workflows for expensive analyses
+  </Card>
+  <Card title="Budget Management" icon="chart-line">
+    **Control spending**
+    - Set monthly budget limits
+    - Monitor team usage patterns
+    - Implement approval for Ultra analyses
+    - Track ROI on security investments
+  </Card>
+</CardGroup>
+
+## Billing Support
+
+### Common Billing Issues
+
+<AccordionGroup>
+  <Accordion title="Payment Failed">
+    **Resolving payment problems**
+    - Check card expiration date
+    - Verify billing address
+    - Contact your bank about international charges
+    - Try a different payment method
+    - Contact support for assistance
+  </Accordion>
+  
+  <Accordion title="Unexpected Charges">
+    **Understanding your bill**
+    - Review usage analytics
+    - Check for auto-recharge settings
+    - Verify team member usage
+    - Contact support for detailed breakdown
+  </Accordion>
+  
+  <Accordion title="Refund Requests">
+    **When refunds are available**
+    - Unused credits from cancelled subscriptions
+    - Technical issues preventing analysis completion
+    - Billing errors or duplicate charges
+    - Contact support within 30 days
+  </Accordion>
+</AccordionGroup>
+
+### Getting Help
+
+<CardGroup cols={2}>
+  <Card title="Self-Service" icon="settings">
+    **Manage billing yourself**
+    - Update payment methods
+    - Download invoices
+    - View usage analytics
+    - Manage subscriptions
+  </Card>
+  <Card title="Support Contact" icon="support">
+    **Get personalized help**
+    - Email: billing@clipron.com
+    - Response time: 24 hours (Pro), 48 hours (Free)
+    - Include account email and issue details
+  </Card>
+</CardGroup>
+
+## Enterprise Billing
+
+### Custom Pricing
+
+For organizations with specific needs:
+
+<AccordionGroup>
+  <Accordion title="Volume Discounts">
+    **Savings for high usage**
+    - Discounted rates for 10,000+ credits/month
+    - Annual payment discounts
+    - Multi-year contract benefits
+    - Custom credit packages
+  </Accordion>
+  
+  <Accordion title="Invoice Billing">
+    **Traditional enterprise billing**
+    - Net 30 payment terms
+    - Purchase order support
+    - Custom billing cycles
+    - Detailed usage reporting
+  </Accordion>
+  
+  <Accordion title="Budget Controls">
+    **Enterprise-grade controls**
+    - Department-level budgets
+    - Approval workflows
+    - Spending alerts and limits
+    - Detailed cost allocation
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+  **Cost Tip**: Start with the Free tier to understand your usage patterns, then choose the plan that best fits your needs. Use Mini analyses for frequent scanning and reserve Ultra for critical security validations.
+</Tip>

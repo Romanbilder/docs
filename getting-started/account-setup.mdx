@@ -1,0 +1,238 @@
+---
+title: 'Account Setup'
+description: 'Create and configure your Clipron AI account'
+---
+
+# Account Setup
+
+Setting up your Clipron AI account is quick and straightforward. Choose from multiple authentication methods and get started with security analysis in minutes.
+
+## Registration Options
+
+<CardGroup cols={3}>
+  <Card title="Google OAuth" icon="google">
+    **Recommended for personal use**
+    - One-click registration
+    - Automatic profile sync
+    - Secure authentication
+  </Card>
+  <Card title="GitHub OAuth" icon="github">
+    **Recommended for developers**
+    - Direct repository access
+    - Seamless integration
+    - Developer-focused features
+  </Card>
+  <Card title="Email & Password" icon="envelope">
+    **Traditional method**
+    - Full control over credentials
+    - Works with any email provider
+    - Manual profile setup
+  </Card>
+</CardGroup>
+
+## Step-by-Step Registration
+
+### Option 1: Google OAuth
+
+<Steps>
+  <Step title="Visit Clipron AI">
+    Go to [clipron.com](https://clipron.com) and click **"Sign Up"**
+  </Step>
+  <Step title="Choose Google">
+    Click the **"Continue with Google"** button
+  </Step>
+  <Step title="Authorize">
+    Grant permissions to Clipron AI in the Google authorization popup
+  </Step>
+  <Step title="Complete Profile">
+    Your account is automatically created with your Google profile information
+  </Step>
+</Steps>
+
+### Option 2: GitHub OAuth
+
+<Steps>
+  <Step title="Visit Clipron AI">
+    Go to [clipron.com](https://clipron.com) and click **"Sign Up"**
+  </Step>
+  <Step title="Choose GitHub">
+    Click the **"Continue with GitHub"** button
+  </Step>
+  <Step title="Authorize">
+    Grant permissions to Clipron AI in the GitHub authorization popup
+  </Step>
+  <Step title="Repository Access">
+    Choose which repositories Clipron AI can access (you can modify this later)
+  </Step>
+</Steps>
+
+### Option 3: Email & Password
+
+<Steps>
+  <Step title="Visit Clipron AI">
+    Go to [clipron.com](https://clipron.com) and click **"Sign Up"**
+  </Step>
+  <Step title="Fill Registration Form">
+    Enter your email address and create a strong password
+  </Step>
+  <Step title="Verify Email">
+    Check your email for a verification link and click it
+  </Step>
+  <Step title="Complete Profile">
+    Add your name and other profile information
+  </Step>
+</Steps>
+
+## Account Verification
+
+After registration, you'll receive:
+
+<AccordionGroup>
+  <Accordion title="Welcome Email" icon="envelope">
+    - Account confirmation
+    - Getting started guide
+    - Important links and resources
+  </Accordion>
+  
+  <Accordion title="Initial Credits" icon="coins">
+    - **Free tier**: 50 credits for testing
+    - **Enough for**: 10-25 quick analyses
+    - **Valid for**: 30 days from registration
+  </Accordion>
+  
+  <Accordion title="Dashboard Access" icon="chart-bar">
+    - Personal security dashboard
+    - Analysis history tracking
+    - Credit balance monitoring
+  </Accordion>
+</AccordionGroup>
+
+## Account Security
+
+### Password Requirements
+
+If using email/password authentication:
+
+- **Minimum length**: 8 characters
+- **Required**: At least one uppercase letter
+- **Required**: At least one lowercase letter  
+- **Required**: At least one number
+- **Recommended**: Special characters (!@#$%^&*)
+
+### Two-Factor Authentication (2FA)
+
+<Warning>
+  2FA is highly recommended for accounts with payment methods or sensitive repositories.
+</Warning>
+
+Enable 2FA in your account settings:
+
+1. Go to **Settings** → **Security**
+2. Click **"Enable Two-Factor Authentication"**
+3. Scan the QR code with your authenticator app
+4. Enter the verification code
+5. Save your backup codes in a secure location
+
+### API Keys
+
+For programmatic access to Clipron AI:
+
+1. Navigate to **Settings** → **API Keys**
+2. Click **"Generate New API Key"**
+3. Copy and securely store your API key
+4. Use the key in your API requests
+
+<Note>
+  API keys provide full access to your account. Never share them publicly or commit them to version control.
+</Note>
+
+## Account Limits
+
+### Free Tier
+- **Credits**: 50 per month
+- **Analyses**: Unlimited (within credit limit)
+- **Repository access**: Public repositories only
+- **API rate limit**: 100 requests/hour
+
+### Pro Tier ($19/month)
+- **Credits**: 500 per month + additional purchases
+- **Analyses**: Unlimited
+- **Repository access**: Public and private repositories
+- **API rate limit**: 1,000 requests/hour
+- **Priority support**: Email support with 24h response
+
+### Enterprise Tier (Custom pricing)
+- **Credits**: Custom allocation
+- **Analyses**: Unlimited
+- **Repository access**: Full access + organization integration
+- **API rate limit**: Custom limits
+- **Dedicated support**: Phone and email support
+- **Custom integrations**: Webhooks, SSO, custom deployments
+
+## Managing Your Account
+
+### Profile Settings
+
+Update your profile information:
+
+- **Name and email**: Basic profile information
+- **Notification preferences**: Email alerts for analyses
+- **Timezone**: For accurate timestamps in reports
+- **Language**: Interface language (English, Czech, German)
+
+### Billing Settings
+
+Manage your subscription and payments:
+
+- **Current plan**: View your active subscription
+- **Payment methods**: Add/remove credit cards
+- **Billing history**: Download invoices and receipts
+- **Usage tracking**: Monitor credit consumption
+
+### Privacy Settings
+
+Control your data and privacy:
+
+- **Data retention**: How long to keep analysis results
+- **Repository permissions**: Which repos Clipron AI can access
+- **Data sharing**: Opt-out of anonymized usage analytics
+- **Account deletion**: Permanently delete your account and data
+
+## Troubleshooting
+
+### Common Issues
+
+<AccordionGroup>
+  <Accordion title="Email verification not received">
+    - Check your spam/junk folder
+    - Ensure the email address is correct
+    - Request a new verification email
+    - Contact support if issues persist
+  </Accordion>
+  
+  <Accordion title="OAuth authorization failed">
+    - Clear your browser cache and cookies
+    - Try a different browser or incognito mode
+    - Check if you have ad blockers interfering
+    - Ensure pop-ups are allowed for clipron.com
+  </Accordion>
+  
+  <Accordion title="Cannot access dashboard">
+    - Verify your email address is confirmed
+    - Try logging out and back in
+    - Clear browser cache
+    - Check if your account is suspended
+  </Accordion>
+</AccordionGroup>
+
+### Getting Help
+
+If you encounter issues during account setup:
+
+- **Documentation**: Check our [troubleshooting guide](/troubleshooting/authentication-problems)
+- **Email support**: support@clipron.com
+- **Response time**: Within 24 hours for Pro users, 48 hours for Free users
+
+<Tip>
+  For the best experience, we recommend using **GitHub OAuth** if you plan to analyze repositories, or **Google OAuth** for general use.
+</Tip>

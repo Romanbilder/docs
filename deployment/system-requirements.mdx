@@ -1,0 +1,384 @@
+---
+title: 'System Requirements'
+description: 'Hardware and software requirements for hosting Clipron AI'
+---
+
+# System Requirements
+
+This guide outlines the minimum and recommended system requirements for self-hosting Clipron AI on your own infrastructure.
+
+## Overview
+
+Clipron AI is designed to run on modern Linux servers with support for Docker containerization or direct installation. The platform consists of a React frontend, FastAPI backend, and requires several external API integrations.
+
+<Warning>
+  Self-hosting requires technical expertise in server administration, security, and API management. Consider using our hosted solution at [clipron.com](https://clipron.com) for easier setup.
+</Warning>
+
+## Server Requirements
+
+### Minimum Requirements
+
+<CardGroup cols={2}>
+  <Card title="CPU" icon="cpu">
+    **2 vCPUs**
+    - x86_64 architecture
+    - 2.0 GHz or higher
+    - Supports up to 10 concurrent analyses
+  </Card>
+  <Card title="Memory" icon="memory">
+    **4 GB RAM**
+    - 2 GB for backend services
+    - 1 GB for database
+    - 1 GB for system overhead
+  </Card>
+  <Card title="Storage" icon="hard-drive">
+    **20 GB SSD**
+    - 10 GB for application files
+    - 5 GB for database
+    - 5 GB for logs and temporary files
+  </Card>
+  <Card title="Network" icon="network">
+    **100 Mbps**
+    - Stable internet connection
+    - Low latency to AI API providers
+    - SSL/TLS support required
+  </Card>
+</CardGroup>
+
+### Recommended Requirements
+
+<CardGroup cols={2}>
+  <Card title="CPU" icon="cpu">
+    **4+ vCPUs**
+    - x86_64 architecture
+    - 3.0 GHz or higher
+    - Supports 50+ concurrent analyses
+  </Card>
+  <Card title="Memory" icon="memory">
+    **8+ GB RAM**
+    - 4 GB for backend services
+    - 2 GB for database
+    - 2 GB for caching and buffers
+  </Card>
+  <Card title="Storage" icon="hard-drive">
+    **100+ GB SSD**
+    - 20 GB for application files
+    - 50 GB for database growth
+    - 30 GB for logs and backups
+  </Card>
+  <Card title="Network" icon="network">
+    **1 Gbps**
+    - High-speed internet connection
+    - CDN integration support
+    - Load balancer compatibility
+  </Card>
+</CardGroup>
+
+## Operating System Support
+
+### Supported Distributions
+
+<Tabs>
+  <Tab title="Ubuntu (Recommended)">
+    **Ubuntu 20.04 LTS or newer**
+    - Best tested and supported
+    - Automated installation scripts available
+    - Long-term support and security updates
+    - Package manager compatibility
+  </Tab>
+  
+  <Tab title="CentOS/RHEL">
+    **CentOS 8+ or RHEL 8+**
+    - Enterprise-grade stability
+    - SELinux compatibility
+    - Corporate environment friendly
+    - Manual configuration required
+  </Tab>
+  
+  <Tab title="Debian">
+    **Debian 11+ (Bullseye)**
+    - Lightweight and stable
+    - Minimal resource usage
+    - Manual configuration required
+    - Good for smaller deployments
+  </Tab>
+  
+  <Tab title="Docker">
+    **Any Docker-compatible OS**
+    - Containerized deployment
+    - Easier scaling and management
+    - Kubernetes support
+    - Cross-platform compatibility
+  </Tab>
+</Tabs>
+
+### Unsupported Systems
+
+<Warning>
+  The following systems are **not supported**:
+  - Windows Server (use Docker instead)
+  - macOS (development only)
+  - 32-bit architectures
+  - ARM processors (experimental support only)
+</Warning>
+
+## Software Dependencies
+
+### Required Software
+
+<AccordionGroup>
+  <Accordion title="Python 3.9+">
+    **Backend runtime environment**
+    - Python 3.9, 3.10, or 3.11 supported
+    - Virtual environment support (venv or conda)
+    - pip package manager
+    - Development headers for compilation
+  </Accordion>
+  
+  <Accordion title="Node.js 18+">
+    **Frontend build environment**
+    - Node.js 18 LTS or newer
+    - npm or yarn package manager
+    - Build tools for native modules
+    - TypeScript support
+  </Accordion>
+  
+  <Accordion title="Database">
+    **Data storage**
+    - SQLite 3.35+ (development/small deployments)
+    - PostgreSQL 13+ (recommended for production)
+    - MySQL 8.0+ (alternative option)
+  </Accordion>
+  
+  <Accordion title="Web Server">
+    **HTTP server and reverse proxy**
+    - Nginx 1.18+ (recommended)
+    - Apache 2.4+ (alternative)
+    - SSL/TLS certificate support
+    - WebSocket proxy support
+  </Accordion>
+</AccordionGroup>
+
+### Optional Software
+
+<CardGroup cols={2}>
+  <Card title="Redis" icon="database">
+    **Caching and session storage**
+    - Improves performance
+    - Required for multi-server deployments
+    - Session persistence
+  </Card>
+  <Card title="Docker" icon="docker">
+    **Containerization**
+    - Simplified deployment
+    - Better resource isolation
+    - Easier scaling
+  </Card>
+  <Card title="Certbot" icon="shield-check">
+    **SSL certificate management**
+    - Automatic SSL certificate renewal
+    - Let's Encrypt integration
+    - HTTPS enforcement
+  </Card>
+  <Card title="Monitoring Tools" icon="chart-line">
+    **System monitoring**
+    - Prometheus + Grafana
+    - System resource monitoring
+    - Application performance tracking
+  </Card>
+</CardGroup>
+
+## External API Requirements
+
+### Required API Keys
+
+<Warning>
+  You must obtain API keys from these providers before installation:
+</Warning>
+
+<AccordionGroup>
+  <Accordion title="AI Model Providers">
+    **At least one required, all recommended**
+    - **Google Gemini API**: Primary analysis engine
+    - **DeepSeek API**: Code-specialized analysis
+    - **Anthropic Claude API**: Advanced reasoning
+    - **OpenAI API**: Fallback and specialized tasks
+  </Accordion>
+  
+  <Accordion title="Authentication Providers">
+    **OAuth integration**
+    - **Google OAuth**: User authentication
+    - **GitHub OAuth**: Repository access and user auth
+    - Both providers recommended for best user experience
+  </Accordion>
+  
+  <Accordion title="Payment Processing">
+    **Required for paid features**
+    - **Stripe API**: Payment processing
+    - **Webhook endpoint**: Payment confirmations
+    - SSL certificate required for webhooks
+  </Accordion>
+</AccordionGroup>
+
+### API Rate Limits
+
+Consider these rate limits when planning your deployment:
+
+| Provider | Free Tier | Paid Tier | Notes |
+|----------|-----------|-----------|-------|
+| Google Gemini | 15 RPM | 300+ RPM | Varies by model |
+| DeepSeek | 60 RPM | 600+ RPM | Code-optimized |
+| Anthropic | 5 RPM | 50+ RPM | Higher quality |
+| OpenAI | 3 RPM | 60+ RPM | GPT-4 limited |
+
+## Network Requirements
+
+### Inbound Connections
+
+<Tabs>
+  <Tab title="HTTP/HTTPS">
+    **Web traffic**
+    - Port 80 (HTTP) - redirects to HTTPS
+    - Port 443 (HTTPS) - main application
+    - SSL certificate required
+  </Tab>
+  
+  <Tab title="SSH">
+    **Server administration**
+    - Port 22 (SSH) - server management
+    - Key-based authentication recommended
+    - Firewall rules for admin IPs
+  </Tab>
+  
+  <Tab title="Webhooks">
+    **External integrations**
+    - Stripe webhooks (HTTPS)
+    - GitHub webhooks (optional)
+    - Custom webhook endpoints
+  </Tab>
+</Tabs>
+
+### Outbound Connections
+
+<AccordionGroup>
+  <Accordion title="AI API Providers">
+    **Required for analysis functionality**
+    - api.openai.com (OpenAI)
+    - generativelanguage.googleapis.com (Google)
+    - api.deepseek.com (DeepSeek)
+    - api.anthropic.com (Anthropic)
+  </Accordion>
+  
+  <Accordion title="Authentication Services">
+    **OAuth and user management**
+    - accounts.google.com (Google OAuth)
+    - github.com (GitHub OAuth)
+    - oauth2.googleapis.com (Google APIs)
+  </Accordion>
+  
+  <Accordion title="Payment Services">
+    **Billing and payments**
+    - api.stripe.com (Stripe API)
+    - js.stripe.com (Stripe.js)
+    - checkout.stripe.com (Checkout)
+  </Accordion>
+</AccordionGroup>
+
+## Security Requirements
+
+### SSL/TLS Configuration
+
+<Steps>
+  <Step title="Certificate Acquisition">
+    Obtain SSL certificates from a trusted CA or use Let's Encrypt
+  </Step>
+  
+  <Step title="Strong Cipher Suites">
+    Configure modern TLS 1.2+ with strong encryption
+  </Step>
+  
+  <Step title="HSTS Headers">
+    Enable HTTP Strict Transport Security
+  </Step>
+  
+  <Step title="Certificate Renewal">
+    Set up automatic certificate renewal
+  </Step>
+</Steps>
+
+### Firewall Configuration
+
+<CardGroup cols={2}>
+  <Card title="Inbound Rules" icon="shield-check">
+    - Allow HTTP (80) and HTTPS (443)
+    - Allow SSH (22) from admin IPs only
+    - Block all other inbound traffic
+  </Card>
+  <Card title="Outbound Rules" icon="arrow-right">
+    - Allow HTTPS (443) to API providers
+    - Allow DNS (53) for name resolution
+    - Allow NTP (123) for time sync
+  </Card>
+</CardGroup>
+
+## Performance Considerations
+
+### Scaling Factors
+
+<AccordionGroup>
+  <Accordion title="Concurrent Users">
+    **User capacity planning**
+    - 1 vCPU per 25 concurrent users
+    - 1 GB RAM per 50 concurrent users
+    - Database connection pooling required
+  </Accordion>
+  
+  <Accordion title="Analysis Volume">
+    **Processing capacity**
+    - 1 vCPU per 5 concurrent analyses
+    - 2 GB RAM per 10 concurrent analyses
+    - Network bandwidth for API calls
+  </Accordion>
+  
+  <Accordion title="Data Storage">
+    **Storage growth planning**
+    - 10 MB per analysis result
+    - 100 MB per 1000 users
+    - Regular backup storage needs
+  </Accordion>
+</AccordionGroup>
+
+### Optimization Recommendations
+
+<Tip>
+  **Performance Tips**:
+  - Use SSD storage for database
+  - Enable Redis caching
+  - Configure CDN for static assets
+  - Monitor API rate limits
+  - Set up database connection pooling
+</Tip>
+
+## Compliance and Regulations
+
+### Data Protection
+
+<Warning>
+  Consider these compliance requirements:
+  - **GDPR**: EU data protection regulations
+  - **CCPA**: California privacy laws
+  - **SOC 2**: Security and availability standards
+  - **ISO 27001**: Information security management
+</Warning>
+
+### Industry-Specific Requirements
+
+- **Healthcare**: HIPAA compliance for medical code
+- **Finance**: PCI DSS for payment processing
+- **Government**: FedRAMP for federal agencies
+- **Enterprise**: Custom security requirements
+
+<Note>
+  Self-hosted deployments are responsible for their own compliance. Our hosted solution at clipron.com includes compliance certifications.
+</Note>

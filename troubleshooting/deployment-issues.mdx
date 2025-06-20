@@ -1,0 +1,581 @@
+---
+title: 'Deployment Issues'
+description: 'Common deployment problems and their solutions'
+---
+
+# Deployment Issues
+
+This guide helps you diagnose and resolve common issues encountered during Clipron AI deployment. Issues are organized by category with step-by-step solutions.
+
+## Service Startup Issues
+
+### Backend Service Won't Start
+
+<AccordionGroup>
+  <Accordion title="Port Already in Use">
+    **Error**: `Address already in use: 8000`
+    
+    **Diagnosis**:
+    ```bash
+    # Check what's using port 8000
+    sudo lsof -i :8000
+    sudo netstat -tulpn | grep :8000
+    ```
+    
+    **Solutions**:
+    ```bash
+    # Option 1: Kill the conflicting process
+    sudo kill -9 <PID>
+    
+    # Option 2: Change the port in configuration
+    # Edit backend/.env
+    PORT=8001
+    
+    # Option 3: Use a different port temporarily
+    cd backend
+    source venv/bin/activate
+    uvicorn main:app --port 8001
+    ```
+  </Accordion>
+  
+  <Accordion title="Python Virtual Environment Issues">
+    **Error**: `No module named 'fastapi'` or similar import errors
+    
+    **Diagnosis**:
+    ```bash
+    # Check if virtual environment is activated
+    which python
+    pip list | grep fastapi
+    
+    # Check virtual environment path
+    echo $VIRTUAL_ENV
+    ```
+    
+    **Solutions**:
+    ```bash
+    # Recreate virtual environment
+    cd backend
+    rm -rf venv
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+    
+    # Or use the installation script
+    ./install_ai_dependencies.sh
+    ```
+  </Accordion>
+  
+  <Accordion title="Database Connection Errors">
+    **Error**: `could not connect to server` or `database does not exist`
+    
+    **Diagnosis**:
+    ```bash
+    # Test database connection
+    cd backend
+    source venv/bin/activate
+    python -c "from database import engine; engine.connect(); print('Database OK')"
+    
+    # Check PostgreSQL status (if using PostgreSQL)
+    sudo systemctl status postgresql
+    ```
+    
+    **Solutions**:
+    ```bash
+    # For PostgreSQL issues
+    sudo systemctl start postgresql
+    sudo systemctl enable postgresql
+    
+    # Recreate database
+    sudo -u postgres createdb clipron_db
+    
+    # For SQLite issues (development)
+    rm backend/clipron.db
+    python backend/init_db.py
+    
+    # Check DATABASE_URL in .env file
+    cat backend/.env | grep DATABASE_URL
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Frontend Build Issues
+
+<AccordionGroup>
+  <Accordion title="Node.js Version Compatibility">
+    **Error**: `error @rollup/rollup-linux-x64-gnu@4.x.x: The platform "linux" is incompatible`
+    
+    **Diagnosis**:
+    ```bash
+    node --version
+    npm --version
+    ```
+    
+    **Solutions**:
+    ```bash
+    # Install Node.js 18 LTS
+    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+    sudo apt-get install -y nodejs
+    
+    # Clear npm cache and reinstall
+    cd frontend
+    rm -rf node_modules package-lock.json
+    npm cache clean --force
+    npm install
+    ```
+  </Accordion>
+  
+  <Accordion title="Memory Issues During Build">
+    **Error**: `JavaScript heap out of memory`
+    
+    **Solutions**:
+    ```bash
+    # Increase Node.js memory limit
+    export NODE_OPTIONS="--max-old-space-size=4096"
+    npm run build
+    
+    # Or modify package.json
+    "scripts": {
+      "build": "NODE_OPTIONS='--max-old-space-size=4096' react-scripts build"
+    }
+    
+    # For servers with limited RAM, use swap
+    sudo fallocate -l 2G /swapfile
+    sudo chmod 600 /swapfile
+    sudo mkswap /swapfile
+    sudo swapon /swapfile
+    ```
+  </Accordion>
+  
+  <Accordion title="Environment Variable Issues">
+    **Error**: Frontend can't connect to backend API
+    
+    **Diagnosis**:
+    ```bash
+    # Check frontend environment variables
+    cat frontend/.env.production
+    
+    # Test API connectivity
+    curl -I https://yourdomain.com/api/health
+    ```
+    
+    **Solutions**:
+    ```bash
+    # Ensure correct API URL in frontend/.env.production
+    REACT_APP_API_URL=https://yourdomain.com/api
+    
+    # Rebuild frontend after environment changes
+    cd frontend
+    npm run build
+    
+    # Check Nginx configuration for API proxy
+    sudo nginx -t
+    sudo systemctl reload nginx
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Network and SSL Issues
+
+### SSL Certificate Problems
+
+<AccordionGroup>
+  <Accordion title="Let's Encrypt Certificate Failure">
+    **Error**: `Failed to obtain certificate` or `Challenge failed`
+    
+    **Diagnosis**:
+    ```bash
+    # Check domain DNS resolution
+    nslookup yourdomain.com
+    dig yourdomain.com
+    
+    # Test HTTP accessibility
+    curl -I http://yourdomain.com
+    ```
+    
+    **Solutions**:
+    ```bash
+    # Ensure domain points to server IP
+    # Check DNS settings with your domain provider
+    
+    # Stop nginx temporarily for standalone mode
+    sudo systemctl stop nginx
+    sudo certbot certonly --standalone -d yourdomain.com
+    
+    # Or use webroot mode
+    sudo certbot certonly --webroot -w /var/www/html -d yourdomain.com
+    
+    # Restart nginx
+    sudo systemctl start nginx
+    ```
+  </Accordion>
+  
+  <Accordion title="Mixed Content Errors">
+    **Error**: Browser blocks HTTP requests from HTTPS site
+    
+    **Solutions**:
+    ```bash
+    # Ensure all API calls use HTTPS
+    # Check frontend/.env.production
+    REACT_APP_API_URL=https://yourdomain.com/api
+    
+    # Add security headers to Nginx
+    add_header Content-Security-Policy "upgrade-insecure-requests";
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+    
+    # Reload Nginx
+    sudo systemctl reload nginx
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Firewall and Network Issues
+
+<AccordionGroup>
+  <Accordion title="Connection Refused Errors">
+    **Error**: `Connection refused` when accessing the site
+    
+    **Diagnosis**:
+    ```bash
+    # Check if services are running
+    sudo systemctl status nginx
+    sudo systemctl status clipron
+    
+    # Check listening ports
+    sudo netstat -tulpn | grep -E ':80|:443|:8000'
+    
+    # Test local connectivity
+    curl -I http://localhost
+    curl -I http://localhost:8000/health
+    ```
+    
+    **Solutions**:
+    ```bash
+    # Start services if not running
+    sudo systemctl start nginx
+    sudo systemctl start clipron
+    
+    # Check firewall settings
+    sudo ufw status
+    sudo ufw allow 80
+    sudo ufw allow 443
+    sudo ufw allow 22
+    
+    # For cloud providers, check security groups
+    # AWS: Security Groups
+    # GCP: Firewall Rules
+    # Azure: Network Security Groups
+    ```
+  </Accordion>
+  
+  <Accordion title="502 Bad Gateway">
+    **Error**: Nginx returns 502 Bad Gateway
+    
+    **Diagnosis**:
+    ```bash
+    # Check backend service status
+    sudo systemctl status clipron
+    sudo journalctl -u clipron -n 50
+    
+    # Check Nginx error logs
+    sudo tail -f /var/log/nginx/error.log
+    
+    # Test backend directly
+    curl -I http://localhost:8000/health
+    ```
+    
+    **Solutions**:
+    ```bash
+    # Restart backend service
+    sudo systemctl restart clipron
+    
+    # Check Nginx proxy configuration
+    sudo nginx -t
+    
+    # Verify proxy_pass URL in Nginx config
+    # Should be: proxy_pass http://localhost:8000/;
+    
+    # Check SELinux (if enabled)
+    sudo setsebool -P httpd_can_network_connect 1
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Database Issues
+
+### PostgreSQL Problems
+
+<AccordionGroup>
+  <Accordion title="Authentication Failed">
+    **Error**: `FATAL: password authentication failed for user "clipron"`
+    
+    **Solutions**:
+    ```bash
+    # Reset PostgreSQL password
+    sudo -u postgres psql
+    ALTER USER clipron PASSWORD 'new_password';
+    \q
+    
+    # Update DATABASE_URL in .env
+    DATABASE_URL=postgresql://clipron:new_password@localhost/clipron_db
+    
+    # Check pg_hba.conf authentication method
+    sudo nano /etc/postgresql/13/main/pg_hba.conf
+    # Ensure line exists: local clipron_db clipron md5
+    
+    # Restart PostgreSQL
+    sudo systemctl restart postgresql
+    ```
+  </Accordion>
+  
+  <Accordion title="Database Does Not Exist">
+    **Error**: `FATAL: database "clipron_db" does not exist`
+    
+    **Solutions**:
+    ```bash
+    # Create database
+    sudo -u postgres createdb clipron_db
+    sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE clipron_db TO clipron;"
+    
+    # Initialize database schema
+    cd backend
+    source venv/bin/activate
+    python init_db.py
+    
+    # Or run migrations
+    alembic upgrade head
+    ```
+  </Accordion>
+  
+  <Accordion title="Connection Pool Exhausted">
+    **Error**: `QueuePool limit of size 20 overflow 30 reached`
+    
+    **Solutions**:
+    ```bash
+    # Increase connection pool size in backend/.env
+    DB_POOL_SIZE=50
+    DB_MAX_OVERFLOW=100
+    
+    # Or in database configuration
+    # Edit backend/database.py
+    engine = create_engine(
+        DATABASE_URL,
+        pool_size=50,
+        max_overflow=100,
+        pool_timeout=30
+    )
+    
+    # Restart backend service
+    sudo systemctl restart clipron
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### SQLite Issues (Development)
+
+<AccordionGroup>
+  <Accordion title="Database Locked">
+    **Error**: `database is locked`
+    
+    **Solutions**:
+    ```bash
+    # Stop all processes using the database
+    sudo systemctl stop clipron
+    pkill -f "python main.py"
+    
+    # Remove lock file if it exists
+    rm backend/clipron.db-wal
+    rm backend/clipron.db-shm
+    
+    # Restart service
+    sudo systemctl start clipron
+    
+    # If problem persists, recreate database
+    rm backend/clipron.db
+    python backend/init_db.py
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Permission and File System Issues
+
+### File Permission Problems
+
+<AccordionGroup>
+  <Accordion title="Permission Denied Errors">
+    **Error**: `Permission denied` when accessing files
+    
+    **Solutions**:
+    ```bash
+    # Fix ownership of application files
+    sudo chown -R clipron:clipron /opt/clipron/
+    
+    # Fix permissions
+    sudo chmod -R 755 /opt/clipron/
+    sudo chmod 644 /opt/clipron/backend/.env
+    
+    # Fix log directory permissions
+    sudo mkdir -p /var/log/clipron
+    sudo chown clipron:clipron /var/log/clipron
+    sudo chmod 755 /var/log/clipron
+    
+    # Fix systemd service file permissions
+    sudo chmod 644 /etc/systemd/system/clipron.service
+    sudo systemctl daemon-reload
+    ```
+  </Accordion>
+  
+  <Accordion title="Disk Space Issues">
+    **Error**: `No space left on device`
+    
+    **Diagnosis**:
+    ```bash
+    # Check disk usage
+    df -h
+    du -sh /opt/clipron/
+    du -sh /var/log/
+    
+    # Find large files
+    find /opt/clipron/ -type f -size +100M
+    ```
+    
+    **Solutions**:
+    ```bash
+    # Clean up logs
+    sudo journalctl --vacuum-time=7d
+    sudo find /var/log/ -name "*.log" -mtime +30 -delete
+    
+    # Clean up old analysis results
+    cd /opt/clipron/backend
+    python -c "
+    from database import SessionLocal
+    from models import Analysis
+    from datetime import datetime, timedelta
+    
+    db = SessionLocal()
+    old_date = datetime.utcnow() - timedelta(days=90)
+    db.query(Analysis).filter(Analysis.created_at < old_date).delete()
+    db.commit()
+    "
+    
+    # Clean up temporary files
+    sudo rm -rf /tmp/clipron_*
+    sudo rm -rf /opt/clipron/backend/uploads/temp/
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## API and External Service Issues
+
+### AI API Connection Problems
+
+<AccordionGroup>
+  <Accordion title="API Key Authentication Errors">
+    **Error**: `401 Unauthorized` from AI APIs
+    
+    **Solutions**:
+    ```bash
+    # Verify API keys in .env file
+    cat backend/.env | grep -E "(GOOGLE_GEMINI|DEEPSEEK|ANTHROPIC|OPENAI)_API_KEY"
+    
+    # Test API keys manually
+    cd backend
+    source venv/bin/activate
+    python quick_ai_test.py
+    
+    # Check API key format and validity
+    # Google Gemini: Should start with "AI"
+    # DeepSeek: Should be a long alphanumeric string
+    # Anthropic: Should start with "sk-ant-"
+    # OpenAI: Should start with "sk-"
+    ```
+  </Accordion>
+  
+  <Accordion title="Rate Limit Exceeded">
+    **Error**: `429 Too Many Requests` from AI APIs
+    
+    **Solutions**:
+    ```bash
+    # Check rate limiting configuration
+    # Edit backend/.env
+    AI_RATE_LIMIT_PER_MINUTE=30
+    AI_BURST_LIMIT=5
+    
+    # Implement exponential backoff
+    # This is handled automatically by the Ron Cortex engine
+    
+    # Monitor API usage
+    tail -f /var/log/clipron/api_usage.log
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Diagnostic Tools
+
+### Health Check Script
+
+```bash
+#!/bin/bash
+# comprehensive-health-check.sh
+
+echo "=== Clipron AI Comprehensive Health Check ==="
+
+# System resources
+echo -e "\n=== System Resources ==="
+echo "CPU Usage: $(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | cut -d'%' -f1)%"
+echo "Memory Usage: $(free | grep Mem | awk '{printf("%.1f%%", $3/$2 * 100.0)}')"
+echo "Disk Usage: $(df -h / | awk 'NR==2 {print $5}')"
+
+# Service status
+echo -e "\n=== Service Status ==="
+for service in clipron nginx postgresql; do
+    if systemctl is-active --quiet $service; then
+        echo "✅ $service: Running"
+    else
+        echo "❌ $service: Not running"
+        systemctl status $service --no-pager -l
+    fi
+done
+
+# Network connectivity
+echo -e "\n=== Network Tests ==="
+curl -s -o /dev/null -w "Backend API: %{http_code} (%{time_total}s)\n" http://localhost:8000/health
+curl -s -o /dev/null -w "Frontend: %{http_code} (%{time_total}s)\n" http://localhost/
+
+# Database connectivity
+echo -e "\n=== Database Test ==="
+cd /opt/clipron/backend
+source venv/bin/activate
+python -c "
+try:
+    from database import engine
+    engine.connect()
+    print('✅ Database: Connected')
+except Exception as e:
+    print(f'❌ Database: {e}')
+"
+
+# Log recent errors
+echo -e "\n=== Recent Errors ==="
+journalctl -u clipron --since "1 hour ago" -p err --no-pager | tail -5
+```
+
+### Log Analysis
+
+```bash
+# Analyze error patterns
+sudo journalctl -u clipron --since "24 hours ago" | grep -i error | sort | uniq -c | sort -nr
+
+# Monitor real-time logs
+sudo journalctl -u clipron -f --output=json | jq -r '.MESSAGE'
+
+# Check specific error types
+sudo journalctl -u clipron | grep -E "(500|error|exception|failed)" | tail -20
+```
+
+<Warning>
+  **Important**: Always backup your database and configuration files before attempting major fixes. Test solutions in a staging environment when possible.
+</Warning>
+
+<Tip>
+  **Troubleshooting Tip**: When reporting issues, include the output of the health check script, relevant log entries, and your system configuration. This helps support provide faster, more accurate assistance.
+</Tip>

@@ -1,0 +1,461 @@
+---
+title: 'GitHub Integration'
+description: 'Connect and analyze your GitHub repositories with Clipron AI'
+---
+
+# GitHub Integration
+
+Clipron AI provides seamless integration with GitHub, allowing you to analyze both public and private repositories directly from the platform. This guide covers setup, configuration, and best practices for GitHub integration.
+
+## Overview
+
+<CardGroup cols={2}>
+  <Card title="Repository Analysis" icon="github">
+    Analyze entire repositories or specific branches with one click
+  </Card>
+  <Card title="Automated Scanning" icon="robot">
+    Set up automated security scans on commits and pull requests
+  </Card>
+  <Card title="Private Repository Access" icon="lock">
+    Securely access your private repositories with OAuth
+  </Card>
+  <Card title="CI/CD Integration" icon="workflow">
+    Integrate security analysis into your development workflow
+  </Card>
+</CardGroup>
+
+## Setting Up GitHub Integration
+
+### Step 1: Connect Your GitHub Account
+
+<Steps>
+  <Step title="Navigate to Integrations">
+    Go to your Clipron AI dashboard and click on **"Integrations"** in the sidebar
+  </Step>
+  
+  <Step title="Connect GitHub">
+    Click the **"Connect GitHub"** button to start the OAuth flow
+  </Step>
+  
+  <Step title="Authorize Clipron AI">
+    You'll be redirected to GitHub to authorize Clipron AI. Grant the following permissions:
+    - **Read access** to your profile and email
+    - **Read access** to your repositories (public and private)
+    - **Write access** to commit statuses (for CI/CD integration)
+  </Step>
+  
+  <Step title="Select Repositories">
+    Choose which repositories Clipron AI can access:
+    - **All repositories**: Grant access to all current and future repositories
+    - **Selected repositories**: Choose specific repositories to analyze
+  </Step>
+</Steps>
+
+### Step 2: Repository Permissions
+
+<AccordionGroup>
+  <Accordion title="Public Repositories">
+    **No additional setup required**
+    - Accessible with any GitHub account
+    - Can be analyzed without OAuth connection
+    - Limited to public repository analysis only
+  </Accordion>
+  
+  <Accordion title="Private Repositories">
+    **Requires GitHub OAuth connection**
+    - Must connect your GitHub account
+    - Requires Pro subscription or higher
+    - Full access to private repository content
+  </Accordion>
+  
+  <Accordion title="Organization Repositories">
+    **Additional organization approval may be required**
+    - Organization owners may need to approve the integration
+    - Some organizations have third-party app restrictions
+    - Contact your organization admin if access is denied
+  </Accordion>
+</AccordionGroup>
+
+## Analyzing Repositories
+
+### Quick Repository Analysis
+
+<Tabs>
+  <Tab title="From Dashboard">
+    1. Click **"New Analysis"** on your dashboard
+    2. Select **"GitHub Repository"** tab
+    3. Choose from your connected repositories
+    4. Select branch (defaults to main/master)
+    5. Choose analysis type and start scan
+  </Tab>
+  
+  <Tab title="Direct URL">
+    1. Click **"New Analysis"** on your dashboard
+    2. Select **"GitHub Repository"** tab
+    3. Enter repository URL: `https://github.com/username/repository`
+    4. For public repos, no authentication needed
+    5. For private repos, ensure GitHub is connected
+  </Tab>
+  
+  <Tab title="Via API">
+    ```bash
+    curl -X POST "https://clipron.com/api/analysis" \
+      -H "Authorization: Bearer <access_token>" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "source_type": "github",
+        "content": "https://github.com/username/repository",
+        "branch": "main",
+        "analysis_type": "standard",
+        "options": {
+          "include_tests": false,
+          "exclude_patterns": ["node_modules/", "*.min.js"]
+        }
+      }'
+    ```
+  </Tab>
+</Tabs>
+
+### Advanced Repository Options
+
+<AccordionGroup>
+  <Accordion title="Branch Selection">
+    **Analyze specific branches or commits**
+    - **Default branch**: Usually main or master
+    - **Feature branches**: Analyze development branches
+    - **Specific commits**: Analyze code at specific commit SHA
+    - **Pull requests**: Analyze changes in pull requests
+    
+    ```json
+    {
+      "source_type": "github",
+      "content": "https://github.com/username/repository",
+      "branch": "feature/new-authentication",
+      "commit": "abc123def456"
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Directory Filtering">
+    **Focus analysis on specific directories**
+    - **Include patterns**: Only analyze matching paths
+    - **Exclude patterns**: Skip certain directories or files
+    - **File type filtering**: Analyze only specific file types
+    
+    ```json
+    {
+      "options": {
+        "include_patterns": ["src/", "lib/"],
+        "exclude_patterns": [
+          "node_modules/",
+          "*.test.js",
+          "docs/",
+          "*.md"
+        ],
+        "max_file_size": 1048576
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Analysis Scope">
+    **Control what gets analyzed**
+    - **Production code only**: Exclude tests and documentation
+    - **Include tests**: Analyze test files for security issues
+    - **Configuration files**: Include config files in analysis
+    - **Dependencies**: Analyze third-party dependencies
+    
+    ```json
+    {
+      "options": {
+        "include_tests": true,
+        "include_config": true,
+        "analyze_dependencies": false,
+        "focus_areas": ["authentication", "data_validation"]
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Automated Security Scanning
+
+### GitHub Actions Integration
+
+Create a GitHub Actions workflow to automatically scan your repository:
+
+<CodeGroup>
+```yaml .github/workflows/security-scan.yml
+name: Security Scan with Clipron AI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Run Clipron AI Security Scan
+      uses: clipron/github-action@v1
+      with:
+        api-key: ${{ secrets.CLIPRON_API_KEY }}
+        analysis-type: 'standard'
+        fail-on-critical: true
+        fail-on-high: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Upload Security Report
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-report
+        path: clipron-security-report.json
+```
+
+```yaml Custom Workflow
+name: Custom Security Analysis
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly on Monday at 2 AM
+  workflow_dispatch:
+
+jobs:
+  comprehensive-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Trigger Clipron AI Analysis
+      run: |
+        curl -X POST "https://clipron.com/api/analysis" \
+          -H "Authorization: Bearer ${{ secrets.CLIPRON_API_KEY }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "source_type": "github",
+            "content": "${{ github.repository }}",
+            "branch": "${{ github.ref_name }}",
+            "analysis_type": "ultra",
+            "options": {
+              "compliance_standards": ["owasp_top_10", "sans_top_25"]
+            }
+          }'
+```
+</CodeGroup>
+
+### Webhook Configuration
+
+Set up webhooks to trigger analysis on repository events:
+
+<Steps>
+  <Step title="Configure Webhook in Clipron AI">
+    1. Go to **Settings** → **Webhooks**
+    2. Click **"Add GitHub Webhook"**
+    3. Select trigger events (push, pull_request, release)
+    4. Copy the webhook URL
+  </Step>
+  
+  <Step title="Add Webhook to GitHub">
+    1. Go to your repository settings on GitHub
+    2. Click **"Webhooks"** → **"Add webhook"**
+    3. Paste the Clipron AI webhook URL
+    4. Select **"application/json"** content type
+    5. Choose events: Push, Pull requests, Releases
+  </Step>
+  
+  <Step title="Test Webhook">
+    1. Make a test commit to your repository
+    2. Check Clipron AI dashboard for automatic analysis
+    3. Verify webhook delivery in GitHub settings
+  </Step>
+</Steps>
+
+## Repository Management
+
+### Connected Repositories
+
+<AccordionGroup>
+  <Accordion title="View Connected Repositories">
+    **Manage your repository connections**
+    - View all connected repositories
+    - See last analysis date and results
+    - Check repository permissions
+    - Update access settings
+    
+    Navigate to **Dashboard** → **Repositories** to see:
+    ```json
+    {
+      "repositories": [
+        {
+          "id": "repo_123",
+          "name": "my-web-app",
+          "full_name": "username/my-web-app",
+          "private": true,
+          "last_analysis": "2024-06-18T10:30:00Z",
+          "last_score": 85,
+          "auto_scan_enabled": true
+        }
+      ]
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Repository Settings">
+    **Configure per-repository settings**
+    - **Auto-scan**: Enable automatic scanning on commits
+    - **Scan schedule**: Set up periodic scans
+    - **Notification preferences**: Configure alerts
+    - **Analysis defaults**: Set default analysis type
+    
+    ```json
+    {
+      "repository_settings": {
+        "auto_scan_on_push": true,
+        "auto_scan_on_pr": true,
+        "default_analysis_type": "standard",
+        "exclude_patterns": ["*.test.js", "docs/"],
+        "notification_email": true,
+        "slack_webhook": "https://hooks.slack.com/..."
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Access Management">
+    **Control repository access**
+    - **Revoke access**: Remove Clipron AI access to specific repositories
+    - **Update permissions**: Modify granted permissions
+    - **Organization approval**: Handle organization-level permissions
+    
+    To revoke access:
+    1. Go to **Settings** → **Integrations** → **GitHub**
+    2. Click **"Manage Repository Access"**
+    3. Uncheck repositories to revoke access
+    4. Or revoke access entirely from GitHub settings
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+### Security Considerations
+
+<CardGroup cols={2}>
+  <Card title="Token Security" icon="shield-check">
+    **Protect your API tokens**
+    - Store API keys in GitHub Secrets
+    - Use repository-specific tokens when possible
+    - Rotate tokens regularly
+    - Never commit tokens to code
+  </Card>
+  <Card title="Repository Permissions" icon="lock">
+    **Minimize access scope**
+    - Grant access only to repositories that need scanning
+    - Use organization-level controls
+    - Review permissions regularly
+    - Monitor access logs
+  </Card>
+</CardGroup>
+
+### Performance Optimization
+
+<AccordionGroup>
+  <Accordion title="Efficient Scanning">
+    **Optimize scan performance and costs**
+    - Use `.clipronignore` file to exclude unnecessary files
+    - Scan only changed files in pull requests
+    - Use appropriate analysis types for different scenarios
+    - Schedule comprehensive scans during off-peak hours
+    
+    Example `.clipronignore`:
+    ```
+    # Dependencies
+    node_modules/
+    vendor/
+    
+    # Build artifacts
+    dist/
+    build/
+    *.min.js
+    *.min.css
+    
+    # Documentation
+    docs/
+    *.md
+    
+    # Tests (optional)
+    **/*.test.js
+    **/*.spec.js
+    ```
+  </Accordion>
+  
+  <Accordion title="CI/CD Integration">
+    **Integrate efficiently with your workflow**
+    - Use quick scans for pull request checks
+    - Run comprehensive scans on main branch
+    - Cache analysis results when possible
+    - Set appropriate failure thresholds
+    
+    ```yaml
+    # Different analysis types for different events
+    - name: Quick PR Scan
+      if: github.event_name == 'pull_request'
+      run: clipron-scan --type=mini --fail-on=critical
+    
+    - name: Comprehensive Main Branch Scan
+      if: github.ref == 'refs/heads/main'
+      run: clipron-scan --type=ultra --fail-on=high
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+### Common Issues
+
+<AccordionGroup>
+  <Accordion title="Repository Access Denied">
+    **Solutions for access issues**
+    - Verify GitHub OAuth connection is active
+    - Check repository permissions in GitHub settings
+    - Ensure organization has approved third-party apps
+    - Re-authorize Clipron AI if permissions changed
+  </Accordion>
+  
+  <Accordion title="Analysis Fails">
+    **Debugging failed analyses**
+    - Check repository size limits (max 1GB)
+    - Verify branch/commit exists
+    - Review excluded patterns for over-exclusion
+    - Check API rate limits and quotas
+  </Accordion>
+  
+  <Accordion title="Webhook Issues">
+    **Fixing webhook problems**
+    - Verify webhook URL is correct
+    - Check webhook secret configuration
+    - Review GitHub webhook delivery logs
+    - Test webhook manually from GitHub settings
+  </Accordion>
+</AccordionGroup>
+
+### Getting Help
+
+<CardGroup cols={2}>
+  <Card title="Documentation" icon="book">
+    Check our [troubleshooting guide](/troubleshooting/github-integration) for detailed solutions
+  </Card>
+  <Card title="Support" icon="support">
+    Contact support@clipron.com with your repository URL and error details
+  </Card>
+</CardGroup>
+
+<Tip>
+  **Integration Tip**: Start with manual repository analysis to understand the results, then gradually implement automated scanning as you become comfortable with the platform.
+</Tip>

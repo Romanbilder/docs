@@ -1,0 +1,553 @@
+---
+title: 'Service Management'
+description: 'Managing Clipron AI services, monitoring, and maintenance'
+---
+
+# Service Management
+
+This guide covers managing Clipron AI services in production, including starting/stopping services, monitoring, logging, and maintenance procedures.
+
+## Service Overview
+
+Clipron AI consists of several services that work together:
+
+<CardGroup cols={2}>
+  <Card title="Clipron Backend" icon="server">
+    Main application service running the FastAPI backend
+  </Card>
+  <Card title="Nginx" icon="globe">
+    Web server and reverse proxy for frontend and API
+  </Card>
+  <Card title="Database" icon="database">
+    PostgreSQL or SQLite database service
+  </Card>
+  <Card title="Redis (Optional)" icon="memory">
+    Caching and session storage service
+  </Card>
+</CardGroup>
+
+## Service Control Scripts
+
+### Quick Service Management
+
+Use the provided scripts for easy service management:
+
+<Tabs>
+  <Tab title="Start Services">
+    ```bash
+    # Start all services
+    sudo ./start.sh
+    
+    # Start individual services
+    sudo systemctl start clipron
+    sudo systemctl start nginx
+    sudo systemctl start postgresql
+    sudo systemctl start redis  # if using Redis
+    ```
+  </Tab>
+  
+  <Tab title="Stop Services">
+    ```bash
+    # Stop all services
+    sudo ./stop.sh
+    
+    # Stop individual services
+    sudo systemctl stop clipron
+    sudo systemctl stop nginx
+    sudo systemctl stop postgresql
+    sudo systemctl stop redis
+    ```
+  </Tab>
+  
+  <Tab title="Restart Services">
+    ```bash
+    # Restart all services
+    sudo ./restart.sh
+    
+    # Restart individual services
+    sudo systemctl restart clipron
+    sudo systemctl restart nginx
+    sudo systemctl reload nginx  # reload config without restart
+    ```
+  </Tab>
+  
+  <Tab title="Service Status">
+    ```bash
+    # Check all service status
+    ./health-check.sh
+    
+    # Check individual service status
+    sudo systemctl status clipron
+    sudo systemctl status nginx
+    sudo systemctl status postgresql
+    ```
+  </Tab>
+</Tabs>
+
+## Systemd Service Configuration
+
+### Clipron Backend Service
+
+The main application service configuration:
+
+```ini
+# /etc/systemd/system/clipron.service
+[Unit]
+Description=Clipron AI Backend Service
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=clipron
+Group=clipron
+WorkingDirectory=/opt/clipron/backend
+Environment=PATH=/opt/clipron/backend/venv/bin
+EnvironmentFile=/opt/clipron/backend/.env
+ExecStart=/opt/clipron/backend/venv/bin/python main.py
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/clipron/backend/logs /opt/clipron/backend/uploads
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Service Management Commands
+
+<AccordionGroup>
+  <Accordion title="Enable/Disable Services">
+    ```bash
+    # Enable service to start on boot
+    sudo systemctl enable clipron
+    sudo systemctl enable nginx
+    sudo systemctl enable postgresql
+    
+    # Disable service from starting on boot
+    sudo systemctl disable clipron
+    
+    # Check if service is enabled
+    sudo systemctl is-enabled clipron
+    ```
+  </Accordion>
+  
+  <Accordion title="Service Dependencies">
+    ```bash
+    # View service dependencies
+    systemctl list-dependencies clipron
+    
+    # Show what services depend on this service
+    systemctl list-dependencies --reverse clipron
+    
+    # Show service tree
+    systemctl list-dependencies --all clipron
+    ```
+  </Accordion>
+  
+  <Accordion title="Service Configuration">
+    ```bash
+    # Reload systemd configuration after changes
+    sudo systemctl daemon-reload
+    
+    # Edit service file
+    sudo systemctl edit clipron
+    
+    # View current service configuration
+    systemctl cat clipron
+    
+    # Show service properties
+    systemctl show clipron
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Monitoring and Health Checks
+
+### Health Check Script
+
+The `health-check.sh` script provides comprehensive service monitoring:
+
+```bash
+#!/bin/bash
+# health-check.sh
+
+echo "=== Clipron AI Health Check ==="
+
+# Check service status
+services=("clipron" "nginx" "postgresql")
+for service in "${services[@]}"; do
+    if systemctl is-active --quiet $service; then
+        echo "✅ $service: Running"
+    else
+        echo "❌ $service: Not running"
+    fi
+done
+
+# Check HTTP endpoints
+echo -e "\n=== HTTP Health Checks ==="
+if curl -s -f http://localhost:8000/health > /dev/null; then
+    echo "✅ Backend API: Responding"
+else
+    echo "❌ Backend API: Not responding"
+fi
+
+if curl -s -f http://localhost/ > /dev/null; then
+    echo "✅ Frontend: Responding"
+else
+    echo "❌ Frontend: Not responding"
+fi
+
+# Check database connection
+echo -e "\n=== Database Health Check ==="
+cd /opt/clipron/backend
+source venv/bin/activate
+if python -c "from database import engine; engine.connect(); print('✅ Database: Connected')" 2>/dev/null; then
+    echo "✅ Database: Connected"
+else
+    echo "❌ Database: Connection failed"
+fi
+
+# Check disk space
+echo -e "\n=== System Resources ==="
+df -h / | awk 'NR==2 {print "Disk usage: " $5 " of " $2}'
+free -h | awk 'NR==2 {print "Memory usage: " $3 " of " $2}'
+uptime | awk '{print "Load average: " $10 $11 $12}'
+```
+
+### Automated Monitoring
+
+<AccordionGroup>
+  <Accordion title="Systemd Watchdog">
+    Enable systemd watchdog for automatic service recovery:
+    
+    ```ini
+    # Add to clipron.service
+    [Service]
+    WatchdogSec=30
+    NotifyAccess=main
+    ```
+    
+    Update your application to send watchdog notifications:
+    ```python
+    import systemd.daemon
+    
+    # In your main application loop
+    systemd.daemon.notify('WATCHDOG=1')
+    ```
+  </Accordion>
+  
+  <Accordion title="Cron Health Checks">
+    Set up automated health monitoring:
+    
+    ```bash
+    # Add to crontab (crontab -e)
+    */5 * * * * /opt/clipron/health-check.sh >> /var/log/clipron/health.log 2>&1
+    
+    # Alert on failures
+    */5 * * * * /opt/clipron/health-check.sh | grep "❌" && echo "Clipron health check failed" | mail -s "Clipron Alert" admin@yourdomain.com
+    ```
+  </Accordion>
+  
+  <Accordion title="External Monitoring">
+    Configure external monitoring services:
+    
+    ```bash
+    # Uptime monitoring endpoints
+    https://yourdomain.com/health
+    https://yourdomain.com/api/health
+    
+    # Monitor these metrics:
+    # - HTTP response time
+    # - Service availability
+    # - Database connectivity
+    # - SSL certificate expiration
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Logging and Log Management
+
+### Log Locations
+
+<CardGroup cols={2}>
+  <Card title="Application Logs" icon="file-text">
+    - **Clipron Backend**: `journalctl -u clipron`
+    - **Custom logs**: `/opt/clipron/backend/logs/`
+    - **Error logs**: `/var/log/clipron/error.log`
+  </Card>
+  <Card title="System Logs" icon="server">
+    - **Nginx Access**: `/var/log/nginx/access.log`
+    - **Nginx Error**: `/var/log/nginx/error.log`
+    - **PostgreSQL**: `/var/log/postgresql/`
+  </Card>
+</CardGroup>
+
+### Log Management Commands
+
+<Tabs>
+  <Tab title="View Logs">
+    ```bash
+    # Real-time application logs
+    sudo journalctl -u clipron -f
+    
+    # Last 100 lines
+    sudo journalctl -u clipron -n 100
+    
+    # Logs from specific time
+    sudo journalctl -u clipron --since "2024-01-01 00:00:00"
+    sudo journalctl -u clipron --since "1 hour ago"
+    
+    # Filter by log level
+    sudo journalctl -u clipron -p err  # errors only
+    sudo journalctl -u clipron -p warning  # warnings and above
+    ```
+  </Tab>
+  
+  <Tab title="Nginx Logs">
+    ```bash
+    # Access logs (real-time)
+    sudo tail -f /var/log/nginx/access.log
+    
+    # Error logs
+    sudo tail -f /var/log/nginx/error.log
+    
+    # Filter by IP or status code
+    grep "192.168.1.100" /var/log/nginx/access.log
+    grep " 500 " /var/log/nginx/access.log
+    
+    # Analyze traffic patterns
+    awk '{print $1}' /var/log/nginx/access.log | sort | uniq -c | sort -nr
+    ```
+  </Tab>
+  
+  <Tab title="Database Logs">
+    ```bash
+    # PostgreSQL logs
+    sudo tail -f /var/log/postgresql/postgresql-13-main.log
+    
+    # Query slow queries
+    grep "duration:" /var/log/postgresql/postgresql-13-main.log
+    
+    # Connection logs
+    grep "connection" /var/log/postgresql/postgresql-13-main.log
+    ```
+  </Tab>
+</Tabs>
+
+### Log Rotation
+
+Configure automatic log rotation to prevent disk space issues:
+
+```bash
+# /etc/logrotate.d/clipron
+/var/log/clipron/*.log {
+    daily
+    missingok
+    rotate 30
+    compress
+    delaycompress
+    notifempty
+    create 644 clipron clipron
+    postrotate
+        systemctl reload clipron
+    endscript
+}
+
+/var/log/nginx/*.log {
+    daily
+    missingok
+    rotate 52
+    compress
+    delaycompress
+    notifempty
+    create 644 www-data www-data
+    postrotate
+        systemctl reload nginx
+    endscript
+}
+```
+
+## Performance Monitoring
+
+### System Metrics
+
+<AccordionGroup>
+  <Accordion title="CPU and Memory">
+    ```bash
+    # Real-time system monitoring
+    htop
+    
+    # Process-specific monitoring
+    ps aux | grep clipron
+    
+    # Memory usage by service
+    systemctl status clipron --no-pager -l
+    
+    # CPU usage over time
+    sar -u 1 10  # 10 samples, 1 second apart
+    ```
+  </Accordion>
+  
+  <Accordion title="Disk and Network">
+    ```bash
+    # Disk usage
+    df -h
+    du -sh /opt/clipron/
+    
+    # Disk I/O
+    iostat -x 1 5
+    
+    # Network connections
+    netstat -tulpn | grep :8000
+    ss -tulpn | grep :8000
+    
+    # Network traffic
+    iftop
+    nethogs
+    ```
+  </Accordion>
+  
+  <Accordion title="Application Metrics">
+    ```bash
+    # Database connections
+    sudo -u postgres psql -c "SELECT count(*) FROM pg_stat_activity;"
+    
+    # Active sessions
+    curl -s http://localhost:8000/metrics | grep active_sessions
+    
+    # Response times
+    curl -w "@curl-format.txt" -o /dev/null -s http://localhost:8000/health
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Backup and Recovery
+
+### Automated Backup Script
+
+```bash
+#!/bin/bash
+# backup.sh
+
+BACKUP_DIR="/opt/backups/clipron"
+DATE=$(date +%Y%m%d_%H%M%S)
+
+# Create backup directory
+mkdir -p $BACKUP_DIR
+
+# Database backup
+if systemctl is-active --quiet postgresql; then
+    sudo -u postgres pg_dump clipron_db > $BACKUP_DIR/database_$DATE.sql
+    gzip $BACKUP_DIR/database_$DATE.sql
+fi
+
+# Application files backup
+tar -czf $BACKUP_DIR/app_$DATE.tar.gz \
+    /opt/clipron/backend/.env \
+    /opt/clipron/backend/uploads/ \
+    /opt/clipron/backend/logs/ \
+    --exclude='*.pyc' \
+    --exclude='__pycache__'
+
+# Configuration backup
+tar -czf $BACKUP_DIR/config_$DATE.tar.gz \
+    /etc/nginx/sites-available/clipron \
+    /etc/systemd/system/clipron.service
+
+# Cleanup old backups (keep 30 days)
+find $BACKUP_DIR -name "*.gz" -mtime +30 -delete
+find $BACKUP_DIR -name "*.sql.gz" -mtime +30 -delete
+
+echo "Backup completed: $DATE"
+```
+
+### Recovery Procedures
+
+<Steps>
+  <Step title="Service Recovery">
+    ```bash
+    # If service fails to start
+    sudo systemctl status clipron
+    sudo journalctl -u clipron --since "10 minutes ago"
+    
+    # Reset failed state
+    sudo systemctl reset-failed clipron
+    sudo systemctl start clipron
+    ```
+  </Step>
+  
+  <Step title="Database Recovery">
+    ```bash
+    # Restore from backup
+    sudo systemctl stop clipron
+    sudo -u postgres dropdb clipron_db
+    sudo -u postgres createdb clipron_db
+    gunzip -c /opt/backups/clipron/database_YYYYMMDD_HHMMSS.sql.gz | sudo -u postgres psql clipron_db
+    sudo systemctl start clipron
+    ```
+  </Step>
+  
+  <Step title="Configuration Recovery">
+    ```bash
+    # Restore configuration files
+    tar -xzf /opt/backups/clipron/config_YYYYMMDD_HHMMSS.tar.gz -C /
+    sudo systemctl daemon-reload
+    sudo systemctl restart clipron nginx
+    ```
+  </Step>
+</Steps>
+
+## Troubleshooting Common Issues
+
+### Service Won't Start
+
+<AccordionGroup>
+  <Accordion title="Permission Issues">
+    ```bash
+    # Fix file permissions
+    sudo chown -R clipron:clipron /opt/clipron/
+    sudo chmod +x /opt/clipron/backend/venv/bin/python
+    
+    # Fix log directory permissions
+    sudo mkdir -p /var/log/clipron
+    sudo chown clipron:clipron /var/log/clipron
+    ```
+  </Accordion>
+  
+  <Accordion title="Port Conflicts">
+    ```bash
+    # Check what's using port 8000
+    sudo lsof -i :8000
+    sudo netstat -tulpn | grep :8000
+    
+    # Kill conflicting process
+    sudo kill -9 <PID>
+    
+    # Or change port in configuration
+    ```
+  </Accordion>
+  
+  <Accordion title="Environment Issues">
+    ```bash
+    # Check environment file
+    sudo -u clipron cat /opt/clipron/backend/.env
+    
+    # Test environment loading
+    cd /opt/clipron/backend
+    sudo -u clipron bash -c "source venv/bin/activate && python -c 'import os; print(os.getenv(\"SECRET_KEY\"))'"
+    ```
+  </Accordion>
+</AccordionGroup>
+
+<Tip>
+  **Monitoring Tip**: Set up alerts for critical metrics like disk space (>90%), memory usage (>90%), and service downtime. Use tools like Prometheus + Grafana or cloud monitoring services for comprehensive monitoring.
+</Tip>

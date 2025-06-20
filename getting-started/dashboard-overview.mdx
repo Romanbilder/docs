@@ -1,0 +1,347 @@
+---
+title: 'Dashboard Overview'
+description: 'Navigate and understand your Clipron AI dashboard'
+---
+
+# Dashboard Overview
+
+Your Clipron AI dashboard is your command center for security analysis. This guide explains every section and feature to help you get the most out of the platform.
+
+## Dashboard Layout
+
+<img src="/images/dashboard-overview.png" alt="Clipron AI Dashboard" />
+
+The dashboard is organized into several key sections:
+
+<CardGroup cols={2}>
+  <Card title="Header Navigation" icon="navigation">
+    Quick access to main features and account settings
+  </Card>
+  <Card title="Credit Balance" icon="coins">
+    Real-time view of your available credits and usage
+  </Card>
+  <Card title="Quick Actions" icon="zap">
+    One-click access to start new analyses
+  </Card>
+  <Card title="Analysis History" icon="history">
+    Complete record of all your security analyses
+  </Card>
+  <Card title="Security Insights" icon="chart-line">
+    Visual trends and statistics about your code security
+  </Card>
+  <Card title="Recent Activity" icon="clock">
+    Latest actions and notifications
+  </Card>
+</CardGroup>
+
+## Header Navigation
+
+### Main Menu Items
+
+<Tabs>
+  <Tab title="Dashboard">
+    - **Home**: Main dashboard view
+    - **Analytics**: Detailed security metrics
+    - **Projects**: Organize analyses by project
+  </Tab>
+  
+  <Tab title="Analysis">
+    - **New Analysis**: Start a new security scan
+    - **History**: View all past analyses
+    - **Scheduled**: Manage automated scans
+  </Tab>
+  
+  <Tab title="Integrations">
+    - **GitHub**: Manage repository connections
+    - **API Keys**: Generate and manage API access
+    - **Webhooks**: Configure result notifications
+  </Tab>
+  
+  <Tab title="Account">
+    - **Profile**: Personal information and preferences
+    - **Billing**: Subscription and payment management
+    - **Settings**: Platform configuration options
+  </Tab>
+</Tabs>
+
+### User Menu
+
+Click your profile picture or name to access:
+
+- **Profile Settings**: Update personal information
+- **Security**: Password, 2FA, and security settings
+- **Notifications**: Email and browser notification preferences
+- **API Documentation**: Quick link to API docs
+- **Support**: Help center and contact options
+- **Sign Out**: Securely log out of your account
+
+## Credit Balance Section
+
+### Credit Information Display
+
+<AccordionGroup>
+  <Accordion title="Current Balance">
+    - **Available credits**: Credits ready to use
+    - **Pending credits**: Credits from recent purchases processing
+    - **Expiration date**: When unused credits expire
+  </Accordion>
+  
+  <Accordion title="Usage Statistics">
+    - **This month**: Credits used in current billing period
+    - **Average per analysis**: Typical credit consumption
+    - **Projected usage**: Estimated monthly consumption
+  </Accordion>
+  
+  <Accordion title="Quick Actions">
+    - **Buy Credits**: Purchase additional credits
+    - **Usage History**: Detailed consumption breakdown
+    - **Billing Settings**: Manage payment methods
+  </Accordion>
+</AccordionGroup>
+
+### Credit Status Indicators
+
+<CardGroup cols={3}>
+  <Card title="Healthy" icon="check-circle">
+    **Green**: 50+ credits remaining
+    - No action needed
+    - Continue normal usage
+  </Card>
+  <Card title="Low" icon="exclamation-triangle">
+    **Yellow**: 10-49 credits remaining
+    - Consider purchasing more
+    - Monitor usage closely
+  </Card>
+  <Card title="Critical" icon="x-circle">
+    **Red**: Less than 10 credits
+    - Purchase credits immediately
+    - Analysis may be limited
+  </Card>
+</CardGroup>
+
+## Quick Actions Panel
+
+### Primary Actions
+
+<Steps>
+  <Step title="New Analysis">
+    **Most used action**
+    - Large, prominent button
+    - Starts the analysis wizard
+    - Shows estimated credit cost
+  </Step>
+  
+  <Step title="GitHub Sync">
+    **For repository users**
+    - Sync latest repository changes
+    - Update repository permissions
+    - Manage connected accounts
+  </Step>
+  
+  <Step title="View Reports">
+    **Access recent results**
+    - Jump to latest analysis
+    - Download reports
+    - Share results with team
+  </Step>
+</Steps>
+
+### Secondary Actions
+
+- **Schedule Analysis**: Set up automated scans
+- **Import Code**: Bulk upload multiple files
+- **API Testing**: Test API endpoints
+- **Documentation**: Quick access to guides
+
+## Analysis History
+
+### History Table Columns
+
+| Column | Description | Actions |
+|--------|-------------|---------|
+| **Status** | Analysis completion status | View progress, retry failed |
+| **Date** | When analysis was started | Sort by date, filter by period |
+| **Source** | Code source (GitHub, paste, upload) | Re-analyze same source |
+| **Type** | Analysis level (Mini, Standard, Ultra) | Compare different types |
+| **Score** | Security score (0-100) | View detailed breakdown |
+| **Issues** | Number of vulnerabilities found | Jump to specific issues |
+| **Credits** | Credits consumed | Track spending |
+| **Actions** | Available operations | Download, share, delete |
+
+### Filtering and Search
+
+<Tabs>
+  <Tab title="Time Filters">
+    - **Last 7 days**: Recent analyses
+    - **Last 30 days**: Monthly view
+    - **Last 90 days**: Quarterly overview
+    - **Custom range**: Specific date periods
+  </Tab>
+  
+  <Tab title="Status Filters">
+    - **Completed**: Finished analyses
+    - **In Progress**: Currently running
+    - **Failed**: Analyses with errors
+    - **Scheduled**: Future automated scans
+  </Tab>
+  
+  <Tab title="Source Filters">
+    - **GitHub**: Repository analyses
+    - **Upload**: File-based analyses
+    - **Paste**: Code snippet analyses
+    - **API**: Programmatic submissions
+  </Tab>
+</Tabs>
+
+### Bulk Operations
+
+Select multiple analyses to:
+- **Download reports**: Get multiple PDF/JSON reports
+- **Delete analyses**: Clean up old results
+- **Export data**: CSV export for external analysis
+- **Share results**: Send to team members
+
+## Security Insights
+
+### Visual Analytics
+
+<CardGroup cols={2}>
+  <Card title="Security Score Trends" icon="chart-line">
+    Track how your code security improves over time
+  </Card>
+  <Card title="Vulnerability Distribution" icon="chart-pie">
+    See breakdown of issue types and severities
+  </Card>
+  <Card title="Analysis Frequency" icon="chart-bar">
+    Monitor how often you're running security checks
+  </Card>
+  <Card title="Credit Usage Patterns" icon="chart-area">
+    Understand your spending and optimize costs
+  </Card>
+</CardGroup>
+
+### Key Metrics
+
+<AccordionGroup>
+  <Accordion title="Security Health Score">
+    **Overall security posture**
+    - Average score across all analyses
+    - Trend direction (improving/declining)
+    - Comparison to industry benchmarks
+  </Accordion>
+  
+  <Accordion title="Vulnerability Metrics">
+    **Issue tracking**
+    - Total vulnerabilities found
+    - Critical issues requiring immediate attention
+    - Fixed vs. outstanding issues
+  </Accordion>
+  
+  <Accordion title="Coverage Metrics">
+    **Analysis coverage**
+    - Lines of code analyzed
+    - Number of files scanned
+    - Repository coverage percentage
+  </Accordion>
+</AccordionGroup>
+
+## Recent Activity Feed
+
+### Activity Types
+
+<Tabs>
+  <Tab title="Analysis Events">
+    - Analysis started/completed
+    - New vulnerabilities discovered
+    - Security score changes
+  </Tab>
+  
+  <Tab title="Account Events">
+    - Credit purchases
+    - Plan upgrades/downgrades
+    - Profile changes
+  </Tab>
+  
+  <Tab title="Integration Events">
+    - GitHub repository connections
+    - API key generation
+    - Webhook deliveries
+  </Tab>
+  
+  <Tab title="System Events">
+    - Platform updates
+    - Maintenance notifications
+    - Feature announcements
+  </Tab>
+</Tabs>
+
+## Customizing Your Dashboard
+
+### Layout Options
+
+<Steps>
+  <Step title="Widget Arrangement">
+    Drag and drop dashboard widgets to customize layout
+  </Step>
+  
+  <Step title="Widget Visibility">
+    Show/hide widgets based on your workflow needs
+  </Step>
+  
+  <Step title="Default Views">
+    Set preferred filters and sorting for history table
+  </Step>
+  
+  <Step title="Notification Settings">
+    Configure which events appear in activity feed
+  </Step>
+</Steps>
+
+### Personalization Features
+
+- **Dark/Light Mode**: Choose your preferred theme
+- **Timezone**: Set local timezone for accurate timestamps
+- **Language**: Select interface language
+- **Density**: Compact or comfortable view options
+
+## Mobile Dashboard
+
+### Mobile-Optimized Features
+
+<CardGroup cols={2}>
+  <Card title="Responsive Design" icon="mobile">
+    Full functionality on phones and tablets
+  </Card>
+  <Card title="Touch Navigation" icon="hand">
+    Optimized for touch interactions
+  </Card>
+  <Card title="Offline Viewing" icon="wifi-off">
+    View cached reports without internet
+  </Card>
+  <Card title="Push Notifications" icon="bell">
+    Get alerts when analyses complete
+  </Card>
+</CardGroup>
+
+## Dashboard Shortcuts
+
+### Keyboard Shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl/Cmd + N` | New Analysis |
+| `Ctrl/Cmd + H` | View History |
+| `Ctrl/Cmd + S` | Search Analyses |
+| `Ctrl/Cmd + R` | Refresh Dashboard |
+| `Ctrl/Cmd + ,` | Open Settings |
+
+### Quick Navigation
+
+- **Breadcrumbs**: Navigate back through sections
+- **Search**: Global search across all analyses
+- **Favorites**: Bookmark frequently accessed analyses
+- **Recent**: Quick access to last 5 analyses
+
+<Tip>
+  Customize your dashboard layout to match your workflow. Most users prefer having Quick Actions and Recent Activity prominently displayed.
+</Tip>

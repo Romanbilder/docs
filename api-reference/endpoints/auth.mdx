@@ -1,0 +1,525 @@
+---
+title: 'Authentication Endpoints'
+description: 'API endpoints for user authentication and session management'
+---
+
+# Authentication Endpoints
+
+The Authentication API provides endpoints for user registration, login, token management, and OAuth integration. All authentication uses JWT tokens with optional OAuth providers.
+
+## Base URL
+
+```
+https://clipron.com/api/auth
+```
+
+## Register User
+
+Create a new user account with email and password.
+
+<CodeGroup>
+```bash cURL
+curl -X POST "https://clipron.com/api/auth/register" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "SecurePassword123!",
+    "name": "John Doe"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://clipron.com/api/auth/register', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    email: 'user@example.com',
+    password: 'SecurePassword123!',
+    name: 'John Doe'
+  })
+});
+
+const user = await response.json();
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://clipron.com/api/auth/register',
+    json={
+        'email': 'user@example.com',
+        'password': 'SecurePassword123!',
+        'name': 'John Doe'
+    }
+)
+
+user = response.json()
+```
+</CodeGroup>
+
+### Request Body
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `email` | string | Yes | Valid email address |
+| `password` | string | Yes | Password (min 8 chars, must include uppercase, lowercase, number) |
+| `name` | string | Yes | User's full name |
+| `company` | string | No | Company or organization name |
+
+### Response
+
+<Tabs>
+  <Tab title="Success (201)">
+    ```json
+    {
+      "user": {
+        "id": "user_clp_1234567890",
+        "email": "user@example.com",
+        "name": "John Doe",
+        "company": null,
+        "role": "free",
+        "created_at": "2024-06-18T10:30:00Z",
+        "email_verified": false
+      },
+      "message": "User created successfully. Please check your email for verification."
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Error (400)">
+    ```json
+    {
+      "error": {
+        "code": "VALIDATION_ERROR",
+        "message": "Invalid input data",
+        "details": {
+          "email": "Email already exists",
+          "password": "Password must contain at least one uppercase letter"
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Login
+
+Authenticate user and receive JWT tokens.
+
+<CodeGroup>
+```bash cURL
+curl -X POST "https://clipron.com/api/auth/login" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=user@example.com&password=SecurePassword123!"
+```
+
+```javascript JavaScript
+const formData = new FormData();
+formData.append('username', 'user@example.com');
+formData.append('password', 'SecurePassword123!');
+
+const response = await fetch('https://clipron.com/api/auth/login', {
+  method: 'POST',
+  body: formData
+});
+
+const tokens = await response.json();
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://clipron.com/api/auth/login',
+    data={
+        'username': 'user@example.com',
+        'password': 'SecurePassword123!'
+    }
+)
+
+tokens = response.json()
+```
+</CodeGroup>
+
+### Request Body (Form Data)
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `username` | string | Yes | User's email address |
+| `password` | string | Yes | User's password |
+
+### Response
+
+<Tabs>
+  <Tab title="Success (200)">
+    ```json
+    {
+      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "token_type": "bearer",
+      "expires_in": 1800,
+      "user": {
+        "id": "user_clp_1234567890",
+        "email": "user@example.com",
+        "name": "John Doe",
+        "role": "free",
+        "credit_balance": 50
+      }
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Error (401)">
+    ```json
+    {
+      "error": {
+        "code": "INVALID_CREDENTIALS",
+        "message": "Invalid email or password"
+      }
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Account Locked (423)">
+    ```json
+    {
+      "error": {
+        "code": "ACCOUNT_LOCKED",
+        "message": "Account temporarily locked due to multiple failed login attempts",
+        "details": {
+          "locked_until": "2024-06-18T11:00:00Z",
+          "remaining_minutes": 15
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Refresh Token
+
+Generate new access token using refresh token.
+
+<CodeGroup>
+```bash cURL
+curl -X POST "https://clipron.com/api/auth/refresh" \
+  -H "Content-Type: application/json" \
+  -H "Cookie: refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+```javascript JavaScript
+const response = await fetch('https://clipron.com/api/auth/refresh', {
+  method: 'POST',
+  credentials: 'include' // Include cookies
+});
+
+const tokens = await response.json();
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://clipron.com/api/auth/refresh',
+    cookies={'refresh_token': 'your_refresh_token_here'}
+)
+
+tokens = response.json()
+```
+</CodeGroup>
+
+### Response
+
+<Tabs>
+  <Tab title="Success (200)">
+    ```json
+    {
+      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+      "token_type": "bearer",
+      "expires_in": 1800
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Error (401)">
+    ```json
+    {
+      "error": {
+        "code": "INVALID_REFRESH_TOKEN",
+        "message": "Refresh token is invalid or expired"
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Logout
+
+Invalidate current session and tokens.
+
+<CodeGroup>
+```bash cURL
+curl -X POST "https://clipron.com/api/auth/logout" \
+  -H "Authorization: Bearer <access_token>"
+```
+
+```javascript JavaScript
+const response = await fetch('https://clipron.com/api/auth/logout', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${accessToken}`
+  }
+});
+```
+
+```python Python
+response = requests.post(
+    'https://clipron.com/api/auth/logout',
+    headers={'Authorization': f'Bearer {access_token}'}
+)
+```
+</CodeGroup>
+
+### Response
+
+<Tabs>
+  <Tab title="Success (200)">
+    ```json
+    {
+      "message": "Successfully logged out"
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Google OAuth
+
+### Initiate Google OAuth
+
+Redirect user to Google for authentication.
+
+```bash
+GET https://clipron.com/api/auth/google
+```
+
+This endpoint redirects the user to Google's OAuth consent screen.
+
+### Google OAuth Callback
+
+Handle Google OAuth callback (internal use).
+
+```bash
+GET https://clipron.com/api/auth/google/callback?code=<auth_code>&state=<state>
+```
+
+This endpoint is called by Google after user authorization and returns JWT tokens.
+
+## GitHub OAuth
+
+### Initiate GitHub OAuth
+
+Redirect user to GitHub for authentication.
+
+```bash
+GET https://clipron.com/api/auth/github
+```
+
+### GitHub OAuth Callback
+
+Handle GitHub OAuth callback (internal use).
+
+```bash
+GET https://clipron.com/api/auth/github/callback?code=<auth_code>&state=<state>
+```
+
+## Password Reset
+
+### Request Password Reset
+
+Send password reset email to user.
+
+<CodeGroup>
+```bash cURL
+curl -X POST "https://clipron.com/api/auth/password-reset" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://clipron.com/api/auth/password-reset', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    email: 'user@example.com'
+  })
+});
+```
+</CodeGroup>
+
+### Request Body
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `email` | string | Yes | Email address of account to reset |
+
+### Response
+
+```json
+{
+  "message": "If an account with this email exists, a password reset link has been sent."
+}
+```
+
+### Confirm Password Reset
+
+Reset password using token from email.
+
+<CodeGroup>
+```bash cURL
+curl -X POST "https://clipron.com/api/auth/password-reset/confirm" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "token": "reset_token_from_email",
+    "new_password": "NewSecurePassword123!"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://clipron.com/api/auth/password-reset/confirm', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    token: 'reset_token_from_email',
+    new_password: 'NewSecurePassword123!'
+  })
+});
+```
+</CodeGroup>
+
+### Request Body
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `token` | string | Yes | Reset token from email |
+| `new_password` | string | Yes | New password (same requirements as registration) |
+
+### Response
+
+<Tabs>
+  <Tab title="Success (200)">
+    ```json
+    {
+      "message": "Password reset successfully"
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Error (400)">
+    ```json
+    {
+      "error": {
+        "code": "INVALID_TOKEN",
+        "message": "Password reset token is invalid or expired"
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Email Verification
+
+### Resend Verification Email
+
+Send new email verification link.
+
+<CodeGroup>
+```bash cURL
+curl -X POST "https://clipron.com/api/auth/verify-email/resend" \
+  -H "Authorization: Bearer <access_token>"
+```
+
+```javascript JavaScript
+const response = await fetch('https://clipron.com/api/auth/verify-email/resend', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${accessToken}`
+  }
+});
+```
+</CodeGroup>
+
+### Verify Email
+
+Confirm email address using token from email.
+
+```bash
+GET https://clipron.com/api/auth/verify-email?token=<verification_token>
+```
+
+This endpoint is typically accessed by clicking the link in the verification email.
+
+## Error Codes
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| `VALIDATION_ERROR` | 400 | Request validation failed |
+| `EMAIL_EXISTS` | 400 | Email already registered |
+| `INVALID_CREDENTIALS` | 401 | Wrong email or password |
+| `INVALID_TOKEN` | 401 | JWT token invalid or expired |
+| `INVALID_REFRESH_TOKEN` | 401 | Refresh token invalid |
+| `EMAIL_NOT_VERIFIED` | 403 | Email verification required |
+| `ACCOUNT_LOCKED` | 423 | Account temporarily locked |
+| `RATE_LIMIT_EXCEEDED` | 429 | Too many requests |
+
+## Security Features
+
+### Rate Limiting
+
+<AccordionGroup>
+  <Accordion title="Login Attempts">
+    - **Limit**: 5 failed attempts per 15 minutes
+    - **Lockout**: 15 minutes after 5 failures
+    - **Progressive**: Longer lockouts for repeated failures
+  </Accordion>
+  
+  <Accordion title="Registration">
+    - **Limit**: 3 registrations per IP per hour
+    - **Email**: 1 registration per email address
+    - **Verification**: Required within 24 hours
+  </Accordion>
+  
+  <Accordion title="Password Reset">
+    - **Limit**: 3 reset requests per email per hour
+    - **Token expiry**: 1 hour
+    - **Single use**: Tokens can only be used once
+  </Accordion>
+</AccordionGroup>
+
+### Token Security
+
+<CardGroup cols={2}>
+  <Card title="Access Tokens" icon="key">
+    - **Lifetime**: 30 minutes
+    - **Algorithm**: HS256
+    - **Claims**: User ID, email, role, expiration
+  </Card>
+  <Card title="Refresh Tokens" icon="refresh">
+    - **Lifetime**: 7 days
+    - **Storage**: HTTP-only secure cookies
+    - **Rotation**: New token issued on each refresh
+  </Card>
+</CardGroup>
+
+<Warning>
+  **Security Note**: Always use HTTPS in production. Store refresh tokens securely and implement proper token rotation to maintain security.
+</Warning>

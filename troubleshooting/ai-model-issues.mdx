@@ -1,0 +1,520 @@
+---
+title: 'AI Model Issues'
+description: 'Troubleshooting AI model connectivity, API keys, and analysis problems'
+---
+
+# AI Model Issues
+
+This guide helps you diagnose and resolve issues related to AI model connectivity, API key problems, and analysis failures in Clipron AI.
+
+## Overview
+
+Clipron AI integrates with multiple AI providers. Issues can occur at various levels:
+
+<CardGroup cols={2}>
+  <Card title="API Connectivity" icon="network">
+    Network issues, timeouts, and service availability problems
+  </Card>
+  <Card title="Authentication" icon="key">
+    API key validation, permissions, and quota issues
+  </Card>
+  <Card title="Model Performance" icon="cpu">
+    Analysis quality, response times, and model selection
+  </Card>
+  <Card title="Rate Limiting" icon="clock">
+    Request limits, quota exhaustion, and throttling
+  </Card>
+</CardGroup>
+
+## API Key Issues
+
+### Invalid or Missing API Keys
+
+<AccordionGroup>
+  <Accordion title="Symptoms">
+    **Common error messages:**
+    - `401 Unauthorized: Invalid API key`
+    - `403 Forbidden: API key not found`
+    - `Analysis failed: No valid AI models available`
+    - `Authentication failed for AI provider`
+  </Accordion>
+  
+  <Accordion title="Diagnosis">
+    **Check API key configuration:**
+    ```bash
+    # Verify API keys are set in environment
+    cd backend
+    source venv/bin/activate
+    python -c "
+    import os
+    keys = ['GOOGLE_GEMINI_API_KEY', 'DEEPSEEK_API_KEY', 'ANTHROPIC_API_KEY', 'OPENAI_API_KEY']
+    for key in keys:
+        value = os.getenv(key)
+        if value:
+            print(f'{key}: {value[:10]}...{value[-4:]}')
+        else:
+            print(f'{key}: NOT SET')
+    "
+    
+    # Test API keys individually
+    python quick_ai_test.py
+    ```
+  </Accordion>
+  
+  <Accordion title="Solutions">
+    **Fix API key problems:**
+    
+    1. **Verify API key format:**
+    ```bash
+    # Google Gemini: Should start with "AI"
+    GOOGLE_GEMINI_API_KEY=AIzaSyC...
+    
+    # DeepSeek: Long alphanumeric string
+    DEEPSEEK_API_KEY=sk-1234567890abcdef...
+    
+    # Anthropic: Should start with "sk-ant-"
+    ANTHROPIC_API_KEY=sk-ant-api03-...
+    
+    # OpenAI: Should start with "sk-"
+    OPENAI_API_KEY=sk-proj-...
+    ```
+    
+    2. **Update environment file:**
+    ```bash
+    # Edit backend/.env
+    nano backend/.env
+    
+    # Restart services after changes
+    sudo systemctl restart clipron
+    ```
+    
+    3. **Test individual providers:**
+    ```python
+    # Test Google Gemini
+    import google.generativeai as genai
+    genai.configure(api_key="your_api_key")
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    response = model.generate_content("Hello")
+    print(response.text)
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### API Key Permissions
+
+<AccordionGroup>
+  <Accordion title="Insufficient Permissions">
+    **Error**: `403 Forbidden: Insufficient permissions`
+    
+    **Solutions:**
+    - **Google Cloud**: Enable Generative AI API in Google Cloud Console
+    - **DeepSeek**: Ensure API key has model access permissions
+    - **Anthropic**: Verify API key tier supports required models
+    - **OpenAI**: Check API key has access to required models (GPT-4, etc.)
+  </Accordion>
+  
+  <Accordion title="Quota Exceeded">
+    **Error**: `429 Too Many Requests: Quota exceeded`
+    
+    **Solutions:**
+    ```bash
+    # Check quota usage
+    curl -H "Authorization: Bearer $OPENAI_API_KEY" \
+         "https://api.openai.com/v1/usage"
+    
+    # Monitor rate limits
+    tail -f /var/log/clipron/api_usage.log | grep "rate_limit"
+    
+    # Implement backoff strategy (automatic in Ron Cortex)
+    # Upgrade API plan if needed
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Connectivity Issues
+
+### Network Connectivity
+
+<AccordionGroup>
+  <Accordion title="Connection Timeouts">
+    **Error**: `Connection timeout` or `Request timeout`
+    
+    **Diagnosis:**
+    ```bash
+    # Test connectivity to AI providers
+    curl -I https://generativelanguage.googleapis.com/
+    curl -I https://api.deepseek.com/
+    curl -I https://api.anthropic.com/
+    curl -I https://api.openai.com/
+    
+    # Check DNS resolution
+    nslookup api.openai.com
+    
+    # Test with timeout
+    timeout 30 curl https://api.openai.com/v1/models \
+      -H "Authorization: Bearer $OPENAI_API_KEY"
+    ```
+    
+    **Solutions:**
+    ```bash
+    # Increase timeout in configuration
+    # Edit backend/.env
+    AI_REQUEST_TIMEOUT=180  # 3 minutes
+    AI_MAX_RETRIES=5
+    AI_RETRY_DELAY=5
+    
+    # Check firewall rules
+    sudo ufw status
+    
+    # For corporate networks, check proxy settings
+    export https_proxy=http://proxy.company.com:8080
+    ```
+  </Accordion>
+  
+  <Accordion title="SSL/TLS Issues">
+    **Error**: `SSL certificate verification failed`
+    
+    **Solutions:**
+    ```bash
+    # Update CA certificates
+    sudo apt update && sudo apt install ca-certificates
+    
+    # Check system time (important for SSL)
+    timedatectl status
+    sudo ntpdate -s time.nist.gov
+    
+    # Test SSL connection
+    openssl s_client -connect api.openai.com:443 -servername api.openai.com
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Proxy and Firewall Issues
+
+<AccordionGroup>
+  <Accordion title="Corporate Proxy">
+    **Configure proxy for AI API calls:**
+    ```bash
+    # Set proxy environment variables
+    export https_proxy=http://proxy.company.com:8080
+    export http_proxy=http://proxy.company.com:8080
+    export no_proxy=localhost,127.0.0.1
+    
+    # Add to systemd service
+    sudo systemctl edit clipron
+    # Add:
+    [Service]
+    Environment="https_proxy=http://proxy.company.com:8080"
+    Environment="http_proxy=http://proxy.company.com:8080"
+    ```
+  </Accordion>
+  
+  <Accordion title="Firewall Configuration">
+    **Allow outbound connections to AI providers:**
+    ```bash
+    # Allow HTTPS outbound
+    sudo ufw allow out 443
+    
+    # Allow specific domains (if using domain-based rules)
+    sudo ufw allow out to generativelanguage.googleapis.com port 443
+    sudo ufw allow out to api.deepseek.com port 443
+    sudo ufw allow out to api.anthropic.com port 443
+    sudo ufw allow out to api.openai.com port 443
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Analysis Failures
+
+### Analysis Timeout
+
+<AccordionGroup>
+  <Accordion title="Symptoms">
+    **Common timeout scenarios:**
+    - Analysis stuck at "AI Analysis" stage
+    - `Analysis timeout after X minutes`
+    - `Request timeout: AI model did not respond`
+    - Analysis shows as "failed" with timeout error
+  </Accordion>
+  
+  <Accordion title="Diagnosis">
+    **Check analysis logs:**
+    ```bash
+    # Check recent analysis failures
+    sudo journalctl -u clipron --since "1 hour ago" | grep -i timeout
+    
+    # Check specific analysis
+    grep "analysis_id_here" /var/log/clipron/analysis.log
+    
+    # Monitor real-time analysis
+    tail -f /var/log/clipron/analysis.log | grep -E "(timeout|error|failed)"
+    ```
+  </Accordion>
+  
+  <Accordion title="Solutions">
+    **Resolve timeout issues:**
+    ```bash
+    # Increase timeout limits
+    # Edit backend/.env
+    AI_REQUEST_TIMEOUT=300  # 5 minutes
+    ANALYSIS_MAX_DURATION=600  # 10 minutes
+    
+    # Restart service
+    sudo systemctl restart clipron
+    
+    # For large codebases, use smaller analysis chunks
+    # Or switch to a faster analysis type (Mini instead of Ultra)
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Model Selection Issues
+
+<AccordionGroup>
+  <Accordion title="No Available Models">
+    **Error**: `No AI models available for analysis`
+    
+    **Diagnosis:**
+    ```bash
+    # Test each model individually
+    python backend/quick_ai_test.py
+    
+    # Check model availability
+    curl -H "Authorization: Bearer $OPENAI_API_KEY" \
+         "https://api.openai.com/v1/models"
+    ```
+    
+    **Solutions:**
+    - Ensure at least one AI API key is valid
+    - Check model-specific permissions
+    - Verify API quotas are not exceeded
+    - Update to supported model versions
+  </Accordion>
+  
+  <Accordion title="Model Performance Issues">
+    **Poor analysis quality or unexpected results:**
+    
+    **Troubleshooting steps:**
+    ```bash
+    # Check model versions in use
+    grep -r "model.*version" backend/config/
+    
+    # Review analysis parameters
+    cat backend/config/analysis_config.json
+    
+    # Test with different models
+    # Try switching from Ultra to Standard or Mini
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Rate Limiting and Quotas
+
+### API Rate Limits
+
+<AccordionGroup>
+  <Accordion title="Rate Limit Exceeded">
+    **Error**: `429 Too Many Requests`
+    
+    **Immediate solutions:**
+    ```bash
+    # Check current rate limit status
+    curl -I -H "Authorization: Bearer $OPENAI_API_KEY" \
+         "https://api.openai.com/v1/models"
+    
+    # Look for rate limit headers:
+    # x-ratelimit-limit-requests
+    # x-ratelimit-remaining-requests
+    # x-ratelimit-reset-requests
+    
+    # Wait for rate limit reset or upgrade API plan
+    ```
+    
+    **Long-term solutions:**
+    ```bash
+    # Configure rate limiting in backend/.env
+    AI_RATE_LIMIT_PER_MINUTE=30
+    AI_BURST_LIMIT=5
+    AI_BACKOFF_FACTOR=2
+    
+    # Implement request queuing
+    ENABLE_REQUEST_QUEUE=true
+    MAX_QUEUE_SIZE=100
+    ```
+  </Accordion>
+  
+  <Accordion title="Quota Management">
+    **Monitor and manage API quotas:**
+    ```bash
+    # Set up quota monitoring
+    # Edit backend/.env
+    AI_BUDGET_LIMIT_MONTHLY=1000  # USD
+    AI_QUOTA_WARNING_THRESHOLD=80  # Percent
+    
+    # Enable quota alerts
+    ENABLE_QUOTA_ALERTS=true
+    QUOTA_ALERT_EMAIL=admin@company.com
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Diagnostic Tools
+
+### AI Model Test Script
+
+Create a comprehensive test script:
+
+```python
+#!/usr/bin/env python3
+# ai_model_test.py
+
+import os
+import asyncio
+import aiohttp
+from datetime import datetime
+
+async def test_google_gemini():
+    """Test Google Gemini API"""
+    api_key = os.getenv('GOOGLE_GEMINI_API_KEY')
+    if not api_key:
+        return {"status": "SKIP", "reason": "No API key"}
+    
+    try:
+        import google.generativeai as genai
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        response = model.generate_content("Hello, test message")
+        return {"status": "OK", "response_length": len(response.text)}
+    except Exception as e:
+        return {"status": "ERROR", "error": str(e)}
+
+async def test_deepseek():
+    """Test DeepSeek API"""
+    api_key = os.getenv('DEEPSEEK_API_KEY')
+    if not api_key:
+        return {"status": "SKIP", "reason": "No API key"}
+    
+    try:
+        async with aiohttp.ClientSession() as session:
+            headers = {"Authorization": f"Bearer {api_key}"}
+            async with session.get("https://api.deepseek.com/v1/models", headers=headers) as resp:
+                if resp.status == 200:
+                    return {"status": "OK", "models_available": True}
+                else:
+                    return {"status": "ERROR", "status_code": resp.status}
+    except Exception as e:
+        return {"status": "ERROR", "error": str(e)}
+
+async def main():
+    """Run all AI model tests"""
+    print(f"AI Model Connectivity Test - {datetime.now()}")
+    print("=" * 50)
+    
+    tests = [
+        ("Google Gemini", test_google_gemini()),
+        ("DeepSeek", test_deepseek()),
+        # Add other providers...
+    ]
+    
+    for name, test_coro in tests:
+        result = await test_coro
+        status_icon = "✅" if result["status"] == "OK" else "❌" if result["status"] == "ERROR" else "⏭️"
+        print(f"{status_icon} {name}: {result}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+### Monitoring Script
+
+```bash
+#!/bin/bash
+# ai_monitor.sh
+
+echo "=== AI Model Health Monitor ==="
+
+# Check API key configuration
+echo "API Key Status:"
+for key in GOOGLE_GEMINI_API_KEY DEEPSEEK_API_KEY ANTHROPIC_API_KEY OPENAI_API_KEY; do
+    if [[ -n "${!key}" ]]; then
+        echo "✅ $key: Configured"
+    else
+        echo "❌ $key: Missing"
+    fi
+done
+
+# Check recent analysis failures
+echo -e "\nRecent Analysis Failures:"
+sudo journalctl -u clipron --since "1 hour ago" | grep -i "analysis.*failed" | tail -5
+
+# Check AI API response times
+echo -e "\nAPI Response Times:"
+for url in "https://api.openai.com/v1/models" "https://api.anthropic.com/v1/messages"; do
+    response_time=$(curl -o /dev/null -s -w "%{time_total}" "$url" || echo "failed")
+    echo "$url: ${response_time}s"
+done
+
+# Check rate limit status
+echo -e "\nRate Limit Status:"
+if [[ -n "$OPENAI_API_KEY" ]]; then
+    curl -s -I -H "Authorization: Bearer $OPENAI_API_KEY" \
+         "https://api.openai.com/v1/models" | grep -i "x-ratelimit"
+fi
+```
+
+## Prevention Strategies
+
+### Monitoring and Alerting
+
+<CardGroup cols={2}>
+  <Card title="Proactive Monitoring" icon="chart-line">
+    **Set up monitoring for:**
+    - API response times
+    - Error rates by provider
+    - Quota usage tracking
+    - Analysis success rates
+  </Card>
+  <Card title="Automated Alerts" icon="bell">
+    **Configure alerts for:**
+    - API key expiration
+    - Quota threshold breaches
+    - High error rates
+    - Service unavailability
+  </Card>
+</CardGroup>
+
+### Best Practices
+
+<AccordionGroup>
+  <Accordion title="API Key Management">
+    **Secure and reliable key management:**
+    - Rotate API keys regularly (quarterly)
+    - Use separate keys for development/production
+    - Monitor key usage and quotas
+    - Implement key backup strategies
+  </Accordion>
+  
+  <Accordion title="Redundancy Planning">
+    **Ensure service reliability:**
+    - Configure multiple AI providers
+    - Implement automatic failover
+    - Cache analysis results when possible
+    - Plan for provider outages
+  </Accordion>
+  
+  <Accordion title="Performance Optimization">
+    **Optimize AI model usage:**
+    - Choose appropriate analysis types
+    - Implement request batching
+    - Use caching for similar code
+    - Monitor and optimize costs
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+  **Important**: Always test AI model connectivity after configuration changes. Keep backup API keys and have a failover strategy for critical systems.
+</Warning>
+
+<Tip>
+  **Troubleshooting Tip**: Use the `quick_ai_test.py` script regularly to verify all AI providers are working correctly. Set up automated monitoring to catch issues early.
+</Tip>

@@ -1,0 +1,424 @@
+---
+title: 'Analysis Types'
+description: 'Understanding different analysis levels and when to use them'
+---
+
+# Analysis Types
+
+Clipron AI offers three distinct analysis levels, each powered by different AI models and optimized for specific use cases. This guide helps you choose the right analysis type for your needs.
+
+## Overview of Analysis Types
+
+<CardGroup cols={3}>
+  <Card title="Ron AI 2 Mini" icon="zap">
+    **Quick Scan**
+    - Google Gemini Flash
+    - 30-60 seconds
+    - 2-5 credits
+    - CI/CD integration
+  </Card>
+  <Card title="Ron AI 2 Standard" icon="search">
+    **Comprehensive Audit**
+    - DeepSeek Coder V2
+    - 1-3 minutes
+    - 5-15 credits
+    - Regular security audits
+  </Card>
+  <Card title="Ron AI 2 Ultra" icon="microscope">
+    **Deep Analysis**
+    - Claude 3.5 Sonnet
+    - 3-10 minutes
+    - 15-50 credits
+    - Pre-production audits
+  </Card>
+</CardGroup>
+
+## Ron AI 2 Mini (Quick Scan)
+
+### When to Use
+
+<AccordionGroup>
+  <Accordion title="CI/CD Integration">
+    **Perfect for automated pipelines**
+    - Fast feedback in development workflow
+    - Catch obvious security issues early
+    - Low cost for frequent scanning
+    - Minimal impact on build times
+  </Accordion>
+  
+  <Accordion title="Initial Code Review">
+    **First pass security check**
+    - Quick overview of security posture
+    - Identify major vulnerabilities
+    - Triage code before deeper analysis
+    - Educational tool for learning
+  </Accordion>
+  
+  <Accordion title="Budget-Conscious Scanning">
+    **Cost-effective security**
+    - Limited credit budget
+    - High-frequency scanning needs
+    - Basic security compliance
+    - Proof of concept projects
+  </Accordion>
+</AccordionGroup>
+
+### What It Detects
+
+<Tabs>
+  <Tab title="Common Vulnerabilities">
+    - **SQL Injection**: Basic injection patterns
+    - **XSS**: Cross-site scripting vulnerabilities
+    - **CSRF**: Cross-site request forgery
+    - **Authentication Issues**: Basic auth problems
+    - **Input Validation**: Missing validation checks
+  </Tab>
+  
+  <Tab title="Code Quality Issues">
+    - **Hardcoded Secrets**: API keys, passwords in code
+    - **Insecure Configurations**: Basic misconfigurations
+    - **Deprecated Functions**: Use of unsafe functions
+    - **Basic Logic Errors**: Simple programming mistakes
+  </Tab>
+  
+  <Tab title="Compliance Basics">
+    - **OWASP Top 10**: Basic coverage
+    - **CWE**: Common weakness patterns
+    - **Security Best Practices**: Fundamental violations
+  </Tab>
+</Tabs>
+
+### Example Use Cases
+
+```bash
+# CI/CD Pipeline Integration
+- name: Quick Security Scan
+  run: |
+    curl -X POST "https://clipron.com/api/analysis" \
+      -H "Authorization: Bearer $CLIPRON_API_KEY" \
+      -d '{
+        "source_type": "github",
+        "content": "${{ github.repository }}",
+        "analysis_type": "mini",
+        "options": {
+          "fail_on_critical": true
+        }
+      }'
+
+# Daily Development Workflow
+# Quick check before committing changes
+clipron-cli scan --type=mini --path=./src --fail-on=high
+```
+
+## Ron AI 2 Standard (Comprehensive Audit)
+
+### When to Use
+
+<AccordionGroup>
+  <Accordion title="Regular Security Audits">
+    **Balanced depth and speed**
+    - Weekly or monthly security reviews
+    - Comprehensive vulnerability detection
+    - Business logic analysis
+    - Reasonable cost and time investment
+  </Accordion>
+  
+  <Accordion title="Development Workflow Integration">
+    **Enhanced development security**
+    - Pre-merge request analysis
+    - Feature branch security validation
+    - Code review assistance
+    - Security-focused development
+  </Accordion>
+  
+  <Accordion title="Production Preparation">
+    **Pre-deployment security**
+    - Staging environment validation
+    - Release candidate analysis
+    - Security regression testing
+    - Compliance verification
+  </Accordion>
+</AccordionGroup>
+
+### Advanced Detection Capabilities
+
+<Tabs>
+  <Tab title="Complex Vulnerabilities">
+    - **Business Logic Flaws**: Multi-step attack vectors
+    - **Race Conditions**: Concurrency vulnerabilities
+    - **Privilege Escalation**: Authorization bypasses
+    - **Data Flow Analysis**: Taint tracking
+    - **Cryptographic Issues**: Weak crypto implementations
+  </Tab>
+  
+  <Tab title="Framework-Specific Issues">
+    - **Web Framework Security**: Framework-specific patterns
+    - **ORM Vulnerabilities**: Database layer issues
+    - **API Security**: REST/GraphQL vulnerabilities
+    - **Microservices**: Service-to-service security
+  </Tab>
+  
+  <Tab title="Advanced Code Analysis">
+    - **Control Flow Analysis**: Execution path vulnerabilities
+    - **State Machine Analysis**: Application state issues
+    - **Dependency Analysis**: Third-party library risks
+    - **Configuration Security**: Infrastructure as code
+  </Tab>
+</Tabs>
+
+### Example Configuration
+
+```json
+{
+  "source_type": "github",
+  "content": "https://github.com/company/web-app",
+  "analysis_type": "standard",
+  "options": {
+    "focus_areas": [
+      "authentication",
+      "authorization", 
+      "data_validation",
+      "cryptography"
+    ],
+    "compliance_standards": [
+      "owasp_top_10",
+      "sans_top_25"
+    ],
+    "include_dependencies": true,
+    "exclude_patterns": [
+      "node_modules/",
+      "*.test.js",
+      "docs/"
+    ]
+  }
+}
+```
+
+## Ron AI 2 Ultra (Deep Analysis)
+
+### When to Use
+
+<AccordionGroup>
+  <Accordion title="Critical System Analysis">
+    **Maximum security depth**
+    - Financial systems
+    - Healthcare applications
+    - Government systems
+    - High-value targets
+  </Accordion>
+  
+  <Accordion title="Pre-Production Audits">
+    **Final security validation**
+    - Production deployment preparation
+    - Security certification requirements
+    - Compliance audit preparation
+    - Risk assessment for critical releases
+  </Accordion>
+  
+  <Accordion title="Security Research">
+    **Advanced threat analysis**
+    - Novel attack vector discovery
+    - Security research projects
+    - Penetration testing preparation
+    - Advanced threat modeling
+  </Accordion>
+</AccordionGroup>
+
+### Cutting-Edge Analysis
+
+<Tabs>
+  <Tab title="Advanced Threat Modeling">
+    - **Attack Chain Analysis**: Multi-step attack scenarios
+    - **Threat Actor Simulation**: APT-style attack patterns
+    - **Zero-Day Discovery**: Novel vulnerability patterns
+    - **Advanced Persistent Threats**: Long-term compromise vectors
+  </Tab>
+  
+  <Tab title="Deep Code Understanding">
+    - **Semantic Analysis**: Code meaning and intent
+    - **Architectural Vulnerabilities**: System-wide weaknesses
+    - **Complex Data Flows**: Multi-component data tracking
+    - **Emergent Behaviors**: Unexpected system interactions
+  </Tab>
+  
+  <Tab title="Comprehensive Compliance">
+    - **Regulatory Standards**: SOX, HIPAA, PCI-DSS
+    - **Industry Frameworks**: NIST, ISO 27001
+    - **Custom Security Policies**: Organization-specific rules
+    - **Audit Trail Generation**: Compliance documentation
+  </Tab>
+</Tabs>
+
+### Advanced Configuration
+
+```json
+{
+  "source_type": "github",
+  "content": "https://github.com/company/critical-system",
+  "analysis_type": "ultra",
+  "options": {
+    "threat_modeling": {
+      "attack_scenarios": ["insider_threat", "apt", "supply_chain"],
+      "threat_actors": ["nation_state", "organized_crime", "insider"],
+      "attack_surfaces": ["web", "api", "mobile", "infrastructure"]
+    },
+    "compliance_frameworks": [
+      "pci_dss",
+      "hipaa",
+      "sox",
+      "nist_cybersecurity_framework"
+    ],
+    "analysis_depth": {
+      "code_coverage": "maximum",
+      "dependency_depth": 5,
+      "data_flow_analysis": "comprehensive",
+      "control_flow_analysis": "exhaustive"
+    },
+    "custom_rules": [
+      "company_security_policy",
+      "industry_best_practices"
+    ]
+  }
+}
+```
+
+## Choosing the Right Analysis Type
+
+### Decision Matrix
+
+<AccordionGroup>
+  <Accordion title="By Use Case">
+    | Use Case | Recommended Type | Reasoning |
+    |----------|------------------|-----------|
+    | Daily development | Mini | Fast feedback, low cost |
+    | Code review | Standard | Balanced depth and speed |
+    | Pre-production | Ultra | Maximum security assurance |
+    | CI/CD pipeline | Mini | Speed and automation friendly |
+    | Security audit | Standard/Ultra | Depends on criticality |
+    | Compliance check | Ultra | Comprehensive coverage |
+    | Learning/training | Mini | Cost-effective exploration |
+  </Accordion>
+  
+  <Accordion title="By System Criticality">
+    | System Type | Recommended Type | Frequency |
+    |-------------|------------------|-----------|
+    | Internal tools | Mini | Weekly |
+    | Customer-facing | Standard | Bi-weekly |
+    | Financial systems | Ultra | Monthly |
+    | Healthcare apps | Ultra | Before each release |
+    | E-commerce | Standard | Weekly |
+    | Open source | Mini/Standard | Per release |
+  </Accordion>
+  
+  <Accordion title="By Team Size & Budget">
+    | Team Size | Budget | Recommended Strategy |
+    |-----------|--------|---------------------|
+    | 1-5 developers | Limited | Mini for daily, Standard monthly |
+    | 6-20 developers | Moderate | Standard for features, Ultra quarterly |
+    | 20+ developers | Enterprise | All types based on component criticality |
+  </Accordion>
+</AccordionGroup>
+
+### Cost Optimization Strategies
+
+<CardGroup cols={2}>
+  <Card title="Layered Approach" icon="layers">
+    **Use multiple analysis types strategically**
+    - Mini for frequent scanning
+    - Standard for important features
+    - Ultra for critical components
+    - Optimize based on risk assessment
+  </Card>
+  <Card title="Targeted Analysis" icon="target">
+    **Focus on high-risk areas**
+    - Authentication and authorization code
+    - Payment processing logic
+    - Data handling components
+    - External API integrations
+  </Card>
+</CardGroup>
+
+## Analysis Results Comparison
+
+### Typical Results by Type
+
+<Tabs>
+  <Tab title="Mini Analysis Results">
+    ```json
+    {
+      "analysis_type": "mini",
+      "duration": "45 seconds",
+      "credits_used": 3,
+      "security_score": 78,
+      "vulnerabilities_found": 8,
+      "coverage": {
+        "files_analyzed": 45,
+        "lines_of_code": 2500,
+        "functions_analyzed": 120
+      },
+      "top_issues": [
+        "SQL Injection (Critical)",
+        "XSS (High)",
+        "Hardcoded API Key (Medium)"
+      ]
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Standard Analysis Results">
+    ```json
+    {
+      "analysis_type": "standard", 
+      "duration": "2 minutes 15 seconds",
+      "credits_used": 12,
+      "security_score": 72,
+      "vulnerabilities_found": 15,
+      "coverage": {
+        "files_analyzed": 45,
+        "lines_of_code": 2500,
+        "functions_analyzed": 120,
+        "data_flows_traced": 85,
+        "dependencies_analyzed": 23
+      },
+      "advanced_findings": [
+        "Race condition in payment processing",
+        "Business logic bypass in user registration",
+        "Insecure direct object reference"
+      ]
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Ultra Analysis Results">
+    ```json
+    {
+      "analysis_type": "ultra",
+      "duration": "7 minutes 30 seconds", 
+      "credits_used": 35,
+      "security_score": 68,
+      "vulnerabilities_found": 23,
+      "coverage": {
+        "files_analyzed": 45,
+        "lines_of_code": 2500,
+        "functions_analyzed": 120,
+        "data_flows_traced": 150,
+        "dependencies_analyzed": 45,
+        "attack_scenarios_modeled": 12
+      },
+      "threat_analysis": {
+        "attack_chains": 5,
+        "privilege_escalation_paths": 3,
+        "data_exfiltration_vectors": 7
+      },
+      "compliance_results": {
+        "pci_dss": "Failed (3 critical issues)",
+        "owasp_top_10": "Partial compliance"
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+<Tip>
+  **Analysis Tip**: Start with Mini analysis to get familiar with the platform, then use Standard for regular development, and Ultra for critical releases or compliance requirements.
+</Tip>

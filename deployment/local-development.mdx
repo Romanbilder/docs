@@ -1,0 +1,523 @@
+---
+title: 'Local Development Setup'
+description: 'Set up Clipron AI for local development and testing'
+---
+
+# Local Development Setup
+
+This guide walks you through setting up Clipron AI on your local machine for development, testing, or evaluation purposes.
+
+<Info>
+  Local development setup is perfect for testing, customization, and contributing to the project. For production deployment, see our [Production Deployment Guide](/deployment/production-deployment).
+</Info>
+
+## Prerequisites
+
+Before starting, ensure you have the following installed:
+
+<CardGroup cols={2}>
+  <Card title="Git" icon="git">
+    **Version control**
+    - Git 2.25+ recommended
+    - GitHub account for cloning
+    - SSH keys configured (optional)
+  </Card>
+  <Card title="Python 3.9+" icon="python">
+    **Backend runtime**
+    - Python 3.9, 3.10, or 3.11
+    - pip package manager
+    - venv module for virtual environments
+  </Card>
+  <Card title="Node.js 18+" icon="nodejs">
+    **Frontend build tools**
+    - Node.js 18 LTS or newer
+    - npm package manager (included)
+    - Build tools for native modules
+  </Card>
+  <Card title="Code Editor" icon="code">
+    **Development environment**
+    - VS Code (recommended)
+    - PyCharm or similar IDE
+    - Extensions for Python and React
+  </Card>
+</CardGroup>
+
+## Quick Start
+
+### 1. Clone the Repository
+
+```bash
+# Clone the repository
+git clone https://github.com/clipron/clipron-ai.git
+cd clipron-ai
+
+# Make scripts executable
+chmod +x *.sh
+```
+
+### 2. Automated Setup
+
+The fastest way to get started is using our automated setup script:
+
+```bash
+# Run the automated installation script
+./install_ai_dependencies.sh
+```
+
+This script will:
+- Create Python virtual environment
+- Install all Python dependencies
+- Install Node.js dependencies
+- Set up basic configuration files
+- Initialize the database
+
+### 3. Manual Setup (Alternative)
+
+If you prefer manual setup or the automated script fails:
+
+<Steps>
+  <Step title="Backend Setup">
+    ```bash
+    # Navigate to backend directory
+    cd backend
+    
+    # Create virtual environment
+    python3 -m venv venv
+    
+    # Activate virtual environment
+    source venv/bin/activate  # Linux/Mac
+    # or
+    venv\Scripts\activate     # Windows
+    
+    # Install dependencies
+    pip install -r requirements.txt
+    ```
+  </Step>
+  
+  <Step title="Frontend Setup">
+    ```bash
+    # Navigate to frontend directory
+    cd frontend
+    
+    # Install dependencies
+    npm install
+    
+    # Install additional development tools
+    npm install -g @types/node typescript
+    ```
+  </Step>
+  
+  <Step title="Database Initialization">
+    ```bash
+    # Return to backend directory
+    cd backend
+    source venv/bin/activate
+    
+    # Initialize database
+    python init_db.py
+    ```
+  </Step>
+</Steps>
+
+## Configuration
+
+### Environment Variables
+
+Create configuration files from templates:
+
+<Tabs>
+  <Tab title="Backend Configuration">
+    ```bash
+    # Copy backend environment template
+    cd backend
+    cp .env.example .env
+    ```
+    
+    Edit `backend/.env` with your settings:
+    
+    ```bash
+    # Database (SQLite for development)
+    DATABASE_URL=sqlite:///./clipron.db
+    
+    # Security
+    SECRET_KEY=your-secret-key-here
+    ALGORITHM=HS256
+    ACCESS_TOKEN_EXPIRE_MINUTES=30
+    
+    # Development settings
+    ENVIRONMENT=development
+    DEBUG=true
+    FRONTEND_URL=http://localhost:3000
+    ```
+  </Tab>
+  
+  <Tab title="Frontend Configuration">
+    ```bash
+    # Copy frontend environment template
+    cd frontend
+    cp .env.development.example .env.development
+    ```
+    
+    Edit `frontend/.env.development`:
+    
+    ```bash
+    # API Configuration
+    REACT_APP_API_URL=http://localhost:8000
+    REACT_APP_ENVIRONMENT=development
+    
+    # Feature flags
+    REACT_APP_ENABLE_ANALYTICS=false
+    REACT_APP_ENABLE_SENTRY=false
+    ```
+  </Tab>
+</Tabs>
+
+### API Keys (Optional for Basic Testing)
+
+For full functionality, you'll need API keys. Add these to `backend/.env`:
+
+<AccordionGroup>
+  <Accordion title="AI Model APIs (Optional)">
+    ```bash
+    # At least one AI API key for analysis functionality
+    GOOGLE_GEMINI_API_KEY=your_google_gemini_key
+    DEEPSEEK_API_KEY=your_deepseek_key
+    ANTHROPIC_API_KEY=your_anthropic_key
+    OPENAI_API_KEY=your_openai_key
+    ```
+    
+    <Note>
+      Without AI API keys, you can still test the UI and basic functionality, but code analysis won't work.
+    </Note>
+  </Accordion>
+  
+  <Accordion title="OAuth (Optional)">
+    ```bash
+    # Google OAuth (optional)
+    GOOGLE_CLIENT_ID=your_google_client_id
+    GOOGLE_CLIENT_SECRET=your_google_client_secret
+    
+    # GitHub OAuth (optional)
+    GITHUB_CLIENT_ID=your_github_client_id
+    GITHUB_CLIENT_SECRET=your_github_client_secret
+    ```
+    
+    <Note>
+      Without OAuth, you can still create accounts using email/password authentication.
+    </Note>
+  </Accordion>
+  
+  <Accordion title="Stripe (Optional)">
+    ```bash
+    # Stripe for payment processing (optional)
+    STRIPE_SECRET_KEY=sk_test_your_test_key
+    STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+    ```
+    
+    <Note>
+      Without Stripe, the credit system will work in "free mode" with unlimited credits.
+    </Note>
+  </Accordion>
+</AccordionGroup>
+
+## Running the Application
+
+### Development Servers
+
+You'll need to run both backend and frontend servers simultaneously:
+
+<Tabs>
+  <Tab title="Backend Server">
+    ```bash
+    # Terminal 1: Backend
+    cd backend
+    source venv/bin/activate
+    
+    # Run development server
+    python main.py
+    ```
+    
+    The backend will start on `http://localhost:8000`
+    
+    **Available endpoints:**
+    - API: `http://localhost:8000/api`
+    - Docs: `http://localhost:8000/docs`
+    - ReDoc: `http://localhost:8000/redoc`
+  </Tab>
+  
+  <Tab title="Frontend Server">
+    ```bash
+    # Terminal 2: Frontend
+    cd frontend
+    
+    # Run development server
+    npm start
+    ```
+    
+    The frontend will start on `http://localhost:3000`
+    
+    **Features:**
+    - Hot reload for code changes
+    - React DevTools support
+    - Source maps for debugging
+  </Tab>
+</Tabs>
+
+### Using Development Scripts
+
+For convenience, you can use the provided scripts:
+
+```bash
+# Start both servers (requires tmux or screen)
+./start-dev.sh
+
+# Stop all development servers
+./stop-dev.sh
+
+# Reset database and restart
+./reset-dev.sh
+```
+
+## Development Workflow
+
+### Making Changes
+
+<Steps>
+  <Step title="Backend Changes">
+    - Edit Python files in `backend/`
+    - Server automatically reloads on file changes
+    - Check logs in terminal for errors
+    - Test API endpoints at `http://localhost:8000/docs`
+  </Step>
+  
+  <Step title="Frontend Changes">
+    - Edit React files in `frontend/src/`
+    - Browser automatically refreshes on save
+    - Check browser console for errors
+    - Use React DevTools for debugging
+  </Step>
+  
+  <Step title="Database Changes">
+    - Modify models in `backend/models/`
+    - Create migration: `alembic revision --autogenerate -m "description"`
+    - Apply migration: `alembic upgrade head`
+    - Or reset database: `python init_db.py`
+  </Step>
+</Steps>
+
+### Testing
+
+<AccordionGroup>
+  <Accordion title="Backend Testing">
+    ```bash
+    cd backend
+    source venv/bin/activate
+    
+    # Run all tests
+    pytest
+    
+    # Run with coverage
+    pytest --cov=app
+    
+    # Run specific test file
+    pytest tests/test_auth.py
+    ```
+  </Accordion>
+  
+  <Accordion title="Frontend Testing">
+    ```bash
+    cd frontend
+    
+    # Run all tests
+    npm test
+    
+    # Run tests in watch mode
+    npm test -- --watch
+    
+    # Run tests with coverage
+    npm test -- --coverage
+    ```
+  </Accordion>
+  
+  <Accordion title="Integration Testing">
+    ```bash
+    # Test API endpoints
+    ./test-api.sh
+    
+    # Test AI functionality (requires API keys)
+    python backend/quick_ai_test.py
+    
+    # Health check
+    ./health-check.sh
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Development Tools
+
+### Recommended VS Code Extensions
+
+<CardGroup cols={2}>
+  <Card title="Python Extensions" icon="python">
+    - Python (Microsoft)
+    - Pylance
+    - Python Docstring Generator
+    - autoDocstring
+  </Card>
+  <Card title="React Extensions" icon="react">
+    - ES7+ React/Redux/React-Native snippets
+    - Bracket Pair Colorizer
+    - Auto Rename Tag
+    - Prettier - Code formatter
+  </Card>
+  <Card title="General Extensions" icon="tools">
+    - GitLens
+    - Thunder Client (API testing)
+    - REST Client
+    - Docker (if using containers)
+  </Card>
+  <Card title="Database Extensions" icon="database">
+    - SQLite Viewer
+    - PostgreSQL (if using PostgreSQL)
+    - Database Client JDBC
+  </Card>
+</CardGroup>
+
+### Debugging
+
+<Tabs>
+  <Tab title="Backend Debugging">
+    **VS Code Python Debugging:**
+    
+    1. Set breakpoints in Python code
+    2. Press F5 or use "Run and Debug"
+    3. Select "Python: FastAPI" configuration
+    4. Debug requests step-by-step
+    
+    **Manual debugging:**
+    ```python
+    import pdb; pdb.set_trace()  # Add to code
+    ```
+  </Tab>
+  
+  <Tab title="Frontend Debugging">
+    **Browser DevTools:**
+    
+    1. Open browser DevTools (F12)
+    2. Use Console tab for JavaScript errors
+    3. Use Network tab for API calls
+    4. Use React DevTools for component state
+    
+    **VS Code debugging:**
+    ```javascript
+    debugger;  // Add to JavaScript code
+    ```
+  </Tab>
+</Tabs>
+
+## Common Development Issues
+
+### Port Conflicts
+
+<AccordionGroup>
+  <Accordion title="Backend Port 8000 in Use">
+    ```bash
+    # Find process using port 8000
+    lsof -i :8000
+    
+    # Kill the process
+    kill -9 <PID>
+    
+    # Or use different port
+    uvicorn main:app --port 8001
+    ```
+  </Accordion>
+  
+  <Accordion title="Frontend Port 3000 in Use">
+    ```bash
+    # React will automatically suggest port 3001
+    # Or set specific port
+    PORT=3001 npm start
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Database Issues
+
+<AccordionGroup>
+  <Accordion title="Database Locked">
+    ```bash
+    # Stop all processes using database
+    pkill -f "python main.py"
+    
+    # Remove database file
+    rm backend/clipron.db
+    
+    # Reinitialize
+    python backend/init_db.py
+    ```
+  </Accordion>
+  
+  <Accordion title="Migration Errors">
+    ```bash
+    # Reset migrations
+    rm -rf backend/alembic/versions/*
+    
+    # Create new initial migration
+    cd backend
+    alembic revision --autogenerate -m "initial"
+    alembic upgrade head
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Dependency Issues
+
+<AccordionGroup>
+  <Accordion title="Python Dependencies">
+    ```bash
+    # Update pip
+    pip install --upgrade pip
+    
+    # Reinstall requirements
+    pip install -r requirements.txt --force-reinstall
+    
+    # Clear pip cache
+    pip cache purge
+    ```
+  </Accordion>
+  
+  <Accordion title="Node.js Dependencies">
+    ```bash
+    # Clear npm cache
+    npm cache clean --force
+    
+    # Remove node_modules
+    rm -rf node_modules package-lock.json
+    
+    # Reinstall
+    npm install
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Production Deployment" icon="server" href="/deployment/production-deployment">
+    Deploy Clipron AI to a production server
+  </Card>
+  <Card title="API Documentation" icon="book" href="/api-reference/authentication/overview">
+    Explore the complete API reference
+  </Card>
+  <Card title="Contributing" icon="git-branch" href="/contributing">
+    Learn how to contribute to the project
+  </Card>
+  <Card title="Troubleshooting" icon="wrench" href="/troubleshooting/deployment-issues">
+    Solve common development issues
+  </Card>
+</CardGroup>
+
+<Tip>
+  **Pro Tip**: Use `tmux` or `screen` to run both backend and frontend servers in a single terminal session. This makes development much more convenient.
+</Tip>

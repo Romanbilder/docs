@@ -1,0 +1,460 @@
+---
+title: 'Production Deployment'
+description: 'Deploy Clipron AI to production servers with automated scripts'
+---
+
+# Production Deployment
+
+This comprehensive guide covers deploying Clipron AI to production servers using our automated deployment scripts and manual configuration options.
+
+<Warning>
+  Production deployment requires system administration expertise. Ensure you understand server security, SSL certificates, and database management before proceeding.
+</Warning>
+
+## Deployment Overview
+
+Clipron AI production deployment includes:
+
+<CardGroup cols={2}>
+  <Card title="Automated Scripts" icon="robot">
+    One-command deployment with our `start.sh` script
+  </Card>
+  <Card title="Manual Configuration" icon="wrench">
+    Step-by-step manual setup for custom environments
+  </Card>
+  <Card title="Docker Deployment" icon="docker">
+    Containerized deployment for scalability
+  </Card>
+  <Card title="Load Balancing" icon="scale">
+    Multi-server setup with load balancing
+  </Card>
+</CardGroup>
+
+## Pre-Deployment Checklist
+
+Before starting deployment, ensure you have:
+
+<Steps>
+  <Step title="Server Preparation">
+    - ✅ Ubuntu 20.04 LTS or newer server
+    - ✅ Root or sudo access
+    - ✅ Domain name pointing to server IP
+    - ✅ Firewall configured (ports 80, 443, 22)
+  </Step>
+  
+  <Step title="API Keys Ready">
+    - ✅ Google Gemini API key
+    - ✅ DeepSeek API key (recommended)
+    - ✅ Anthropic Claude API key (recommended)
+    - ✅ OpenAI API key (fallback)
+  </Step>
+  
+  <Step title="OAuth Applications">
+    - ✅ Google OAuth client ID and secret
+    - ✅ GitHub OAuth client ID and secret
+    - ✅ Redirect URLs configured for your domain
+  </Step>
+  
+  <Step title="Payment Setup">
+    - ✅ Stripe account and API keys
+    - ✅ Webhook endpoint configured
+    - ✅ SSL certificate for webhook security
+  </Step>
+</Steps>
+
+## Automated Deployment
+
+### Quick Start with start.sh
+
+Our automated deployment script handles most of the setup:
+
+```bash
+# 1. Clone repository
+git clone https://github.com/clipron/clipron-ai.git
+cd clipron-ai
+
+# 2. Make scripts executable
+chmod +x *.sh
+
+# 3. Configure environment (see next section)
+sudo nano backend/.env
+
+# 4. Run automated deployment
+sudo ./start.sh
+```
+
+### What start.sh Does
+
+<AccordionGroup>
+  <Accordion title="System Dependencies">
+    - Updates system packages
+    - Installs Python 3.9+, Node.js 18+, Nginx
+    - Installs build tools and development headers
+    - Configures system users and permissions
+  </Accordion>
+  
+  <Accordion title="Application Setup">
+    - Creates Python virtual environment
+    - Installs Python dependencies
+    - Builds React frontend for production
+    - Initializes database with proper schema
+  </Accordion>
+  
+  <Accordion title="Service Configuration">
+    - Creates systemd service for backend
+    - Configures Nginx as reverse proxy
+    - Sets up SSL with Let's Encrypt (if configured)
+    - Enables automatic service startup
+  </Accordion>
+  
+  <Accordion title="Security Hardening">
+    - Configures firewall rules
+    - Sets proper file permissions
+    - Enables security headers
+    - Configures log rotation
+  </Accordion>
+</AccordionGroup>
+
+## Environment Configuration
+
+### Production Environment File
+
+Create `backend/.env` with production settings:
+
+```bash
+# Database Configuration
+DATABASE_URL=postgresql://clipron:password@localhost/clipron_db
+# or for SQLite: sqlite:///./clipron.db
+
+# Security Settings
+SECRET_KEY=your-super-secret-key-min-32-chars
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+# Production Settings
+ENVIRONMENT=production
+DEBUG=false
+FRONTEND_URL=https://yourdomain.com
+
+# AI API Keys
+GOOGLE_GEMINI_API_KEY=your_google_gemini_api_key
+DEEPSEEK_API_KEY=your_deepseek_api_key
+ANTHROPIC_API_KEY=your_anthropic_api_key
+OPENAI_API_KEY=your_openai_api_key
+
+# OAuth Configuration
+GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=GOCSPX-your_google_client_secret
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+
+# Stripe Configuration
+STRIPE_SECRET_KEY=sk_live_your_stripe_secret_key
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+
+# Email Configuration (optional)
+SMTP_SERVER=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=your_email@gmail.com
+SMTP_PASSWORD=your_app_password
+```
+
+### Frontend Environment
+
+Create `frontend/.env.production`:
+
+```bash
+# API Configuration
+REACT_APP_API_URL=https://yourdomain.com/api
+REACT_APP_ENVIRONMENT=production
+
+# Analytics (optional)
+REACT_APP_GOOGLE_ANALYTICS_ID=GA_MEASUREMENT_ID
+REACT_APP_ENABLE_ANALYTICS=true
+
+# Error Tracking (optional)
+REACT_APP_SENTRY_DSN=your_sentry_dsn
+REACT_APP_ENABLE_SENTRY=true
+
+# Feature Flags
+REACT_APP_ENABLE_GITHUB_INTEGRATION=true
+REACT_APP_ENABLE_STRIPE_PAYMENTS=true
+```
+
+## Manual Deployment Steps
+
+If you prefer manual deployment or need custom configuration:
+
+### 1. System Preparation
+
+```bash
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install required packages
+sudo apt install -y git python3 python3-venv python3-pip nodejs npm nginx postgresql postgresql-contrib certbot python3-certbot-nginx
+
+# Create application user
+sudo useradd -m -s /bin/bash clipron
+sudo usermod -aG sudo clipron
+```
+
+### 2. Database Setup
+
+<Tabs>
+  <Tab title="PostgreSQL (Recommended)">
+    ```bash
+    # Switch to postgres user
+    sudo -u postgres psql
+    
+    # Create database and user
+    CREATE DATABASE clipron_db;
+    CREATE USER clipron WITH PASSWORD 'secure_password';
+    GRANT ALL PRIVILEGES ON DATABASE clipron_db TO clipron;
+    \q
+    
+    # Update pg_hba.conf for local connections
+    sudo nano /etc/postgresql/13/main/pg_hba.conf
+    # Add: local   clipron_db   clipron   md5
+    
+    # Restart PostgreSQL
+    sudo systemctl restart postgresql
+    ```
+  </Tab>
+  
+  <Tab title="SQLite (Simple)">
+    ```bash
+    # SQLite requires no additional setup
+    # Database file will be created automatically
+    # Ensure proper permissions on data directory
+    sudo mkdir -p /opt/clipron/data
+    sudo chown clipron:clipron /opt/clipron/data
+    ```
+  </Tab>
+</Tabs>
+
+### 3. Application Installation
+
+```bash
+# Clone repository
+cd /opt
+sudo git clone https://github.com/clipron/clipron-ai.git clipron
+sudo chown -R clipron:clipron /opt/clipron
+
+# Switch to application user
+sudo -u clipron -i
+cd /opt/clipron
+
+# Backend setup
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Initialize database
+python init_db.py
+
+# Frontend setup
+cd ../frontend
+npm install
+npm run build
+```
+
+### 4. Service Configuration
+
+Create systemd service file:
+
+```bash
+sudo nano /etc/systemd/system/clipron.service
+```
+
+```ini
+[Unit]
+Description=Clipron AI Backend
+After=network.target
+
+[Service]
+Type=simple
+User=clipron
+Group=clipron
+WorkingDirectory=/opt/clipron/backend
+Environment=PATH=/opt/clipron/backend/venv/bin
+ExecStart=/opt/clipron/backend/venv/bin/python main.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Enable and start the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable clipron
+sudo systemctl start clipron
+```
+
+### 5. Nginx Configuration
+
+Create Nginx configuration:
+
+```bash
+sudo nano /etc/nginx/sites-available/clipron
+```
+
+```nginx
+server {
+    listen 80;
+    server_name yourdomain.com www.yourdomain.com;
+    
+    # Redirect HTTP to HTTPS
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name yourdomain.com www.yourdomain.com;
+    
+    # SSL Configuration (will be added by Certbot)
+    
+    # Frontend static files
+    location / {
+        root /opt/clipron/frontend/build;
+        try_files $uri $uri/ /index.html;
+        
+        # Cache static assets
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
+    }
+    
+    # Backend API
+    location /api/ {
+        proxy_pass http://localhost:8000/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # WebSocket support
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+    
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';" always;
+}
+```
+
+Enable the site:
+
+```bash
+sudo ln -s /etc/nginx/sites-available/clipron /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+### 6. SSL Certificate
+
+```bash
+# Install SSL certificate with Let's Encrypt
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+
+# Test automatic renewal
+sudo certbot renew --dry-run
+```
+
+## Post-Deployment Verification
+
+### Health Checks
+
+<AccordionGroup>
+  <Accordion title="Service Status">
+    ```bash
+    # Check service status
+    sudo systemctl status clipron
+    sudo systemctl status nginx
+    sudo systemctl status postgresql
+    
+    # Check logs
+    sudo journalctl -u clipron -f
+    sudo tail -f /var/log/nginx/access.log
+    ```
+  </Accordion>
+  
+  <Accordion title="Application Health">
+    ```bash
+    # Test API endpoints
+    curl https://yourdomain.com/api/health
+    curl https://yourdomain.com/api/docs
+    
+    # Test frontend
+    curl -I https://yourdomain.com/
+    ```
+  </Accordion>
+  
+  <Accordion title="Database Connection">
+    ```bash
+    # Test database connection
+    cd /opt/clipron/backend
+    source venv/bin/activate
+    python -c "from database import engine; print('Database OK')"
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Monitoring and Maintenance
+
+### Log Management
+
+<CardGroup cols={2}>
+  <Card title="Application Logs" icon="file-text">
+    - Backend: `journalctl -u clipron`
+    - Nginx: `/var/log/nginx/`
+    - Database: `/var/log/postgresql/`
+  </Card>
+  <Card title="Log Rotation" icon="refresh">
+    - Automatic rotation configured
+    - 30-day retention policy
+    - Compressed old logs
+  </Card>
+</CardGroup>
+
+### Backup Strategy
+
+<Steps>
+  <Step title="Database Backups">
+    ```bash
+    # PostgreSQL backup
+    sudo -u postgres pg_dump clipron_db > backup_$(date +%Y%m%d).sql
+    
+    # SQLite backup
+    cp /opt/clipron/backend/clipron.db backup_$(date +%Y%m%d).db
+    ```
+  </Step>
+  
+  <Step title="Application Backups">
+    ```bash
+    # Backup configuration and uploads
+    tar -czf clipron_backup_$(date +%Y%m%d).tar.gz /opt/clipron/backend/.env /opt/clipron/uploads/
+    ```
+  </Step>
+  
+  <Step title="Automated Backups">
+    ```bash
+    # Add to crontab
+    0 2 * * * /opt/clipron/scripts/backup.sh
+    ```
+  </Step>
+</Steps>
+
+<Tip>
+  **Production Tip**: Always test your deployment on a staging server first. Use the same configuration and data to ensure everything works correctly before going live.
+</Tip>

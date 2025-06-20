@@ -1,0 +1,153 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Clipron AI Documentation",
+  "colors": {
+    "primary": "#2563EB",
+    "light": "#3B82F6",
+    "dark": "#1D4ED8"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Introduction",
+            "pages": [
+              "index",
+              "philosophy",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Getting Started",
+            "pages": [
+              "getting-started/account-setup",
+              "getting-started/first-analysis",
+              "getting-started/dashboard-overview"
+            ]
+          },
+          {
+            "group": "Installation & Deployment",
+            "pages": [
+              "deployment/system-requirements",
+              "deployment/local-development",
+              "deployment/production-deployment",
+              "deployment/environment-configuration",
+              "deployment/service-management"
+            ]
+          },
+          {
+            "group": "Architecture",
+            "pages": [
+              "architecture/overview",
+              "architecture/frontend",
+              "architecture/backend",
+              "architecture/database",
+              "architecture/ron-cortex-engine"
+            ]
+          },
+          {
+            "group": "User Guides",
+            "pages": [
+              "guides/account-management",
+              "guides/github-integration",
+              "guides/analysis-types",
+              "guides/security-reports",
+              "guides/credits-payments"
+            ]
+          },
+          {
+            "group": "Troubleshooting",
+            "pages": [
+              "troubleshooting/deployment-issues",
+              "troubleshooting/authentication-problems",
+              "troubleshooting/ai-model-issues",
+              "troubleshooting/diagnostic-scripts"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Authentication",
+            "pages": [
+              "api-reference/authentication/overview",
+              "api-reference/authentication/jwt-tokens",
+              "api-reference/authentication/oauth"
+            ]
+          },
+          {
+            "group": "Core Endpoints",
+            "pages": [
+              "api-reference/endpoints/auth",
+              "api-reference/endpoints/users",
+              "api-reference/endpoints/analysis",
+              "api-reference/endpoints/github",
+              "api-reference/endpoints/credits",
+              "api-reference/endpoints/payments"
+            ]
+          },
+          {
+            "group": "Examples & SDKs",
+            "pages": [
+              "api-reference/examples/curl",
+              "api-reference/examples/javascript",
+              "api-reference/examples/python"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Clipron AI Platform",
+          "href": "https://clipron.com",
+          "icon": "shield-check"
+        },
+        {
+          "anchor": "GitHub Repository",
+          "href": "https://github.com/clipron/clipron-ai",
+          "icon": "github"
+        },
+        {
+          "anchor": "Support",
+          "href": "mailto:support@clipron.com",
+          "icon": "envelope"
+        }
+      ]
+    }
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Platform",
+        "href": "https://clipron.com"
+      },
+      {
+        "label": "Support",
+        "href": "mailto:support@clipron.com"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Get Started",
+      "href": "https://clipron.com/register"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/clipron",
+      "linkedin": "https://linkedin.com/company/clipron"
+    }
+  }
+}

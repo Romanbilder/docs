@@ -1,0 +1,499 @@
+---
+title: 'Authentication Overview'
+description: 'Complete guide to Clipron AI authentication and authorization'
+---
+
+# Authentication Overview
+
+Clipron AI uses a robust authentication system combining JWT tokens with OAuth providers for secure access to the platform. This guide covers all authentication methods and security features.
+
+## Authentication Methods
+
+<CardGroup cols={3}>
+  <Card title="JWT Tokens" icon="key">
+    **Primary authentication**
+    - Stateless authentication
+    - Access and refresh tokens
+    - Secure token signing
+  </Card>
+  <Card title="Google OAuth" icon="google">
+    **Social authentication**
+    - One-click login
+    - Secure profile sync
+    - No password management
+  </Card>
+  <Card title="GitHub OAuth" icon="github">
+    **Developer-focused**
+    - Repository access
+    - Developer workflow integration
+    - Seamless GitHub integration
+  </Card>
+</CardGroup>
+
+## JWT Token System
+
+### Token Types
+
+<AccordionGroup>
+  <Accordion title="Access Token">
+    **Short-lived authentication token**
+    - **Lifetime**: 30 minutes (configurable)
+    - **Purpose**: API access authorization
+    - **Storage**: Memory or secure storage only
+    - **Refresh**: Automatically refreshed by client
+    
+    ```json
+    {
+      "sub": "user_id_123",
+      "email": "user@example.com",
+      "exp": 1640995200,
+      "iat": 1640993400,
+      "type": "access"
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Refresh Token">
+    **Long-lived token renewal**
+    - **Lifetime**: 7 days (configurable)
+    - **Purpose**: Generate new access tokens
+    - **Storage**: Secure HTTP-only cookie
+    - **Rotation**: New refresh token on each use
+    
+    ```json
+    {
+      "sub": "user_id_123",
+      "exp": 1641600000,
+      "iat": 1640993400,
+      "type": "refresh",
+      "jti": "unique_token_id"
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Token Usage
+
+<Tabs>
+  <Tab title="API Requests">
+    **Including tokens in requests**
+    
+    ```bash
+    # Header-based authentication (recommended)
+    curl -H "Authorization: Bearer <access_token>" \
+         https://clipron.com/api/user/profile
+    
+    # Query parameter (not recommended for production)
+    curl "https://clipron.com/api/user/profile?token=<access_token>"
+    ```
+  </Tab>
+  
+  <Tab title="Token Refresh">
+    **Automatic token renewal**
+    
+    ```javascript
+    // Frontend token refresh logic
+    async function refreshToken() {
+      try {
+        const response = await fetch('/api/auth/refresh', {
+          method: 'POST',
+          credentials: 'include' // Include refresh token cookie
+        });
+        
+        if (response.ok) {
+          const { access_token } = await response.json();
+          localStorage.setItem('access_token', access_token);
+          return access_token;
+        }
+      } catch (error) {
+        // Redirect to login
+        window.location.href = '/login';
+      }
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Token Validation">
+    **Server-side token verification**
+    
+    ```python
+    from jose import JWTError, jwt
+    from datetime import datetime
+    
+    def verify_token(token: str):
+        try:
+            payload = jwt.decode(
+                token, 
+                SECRET_KEY, 
+                algorithms=[ALGORITHM]
+            )
+            
+            # Check expiration
+            exp = payload.get("exp")
+            if exp and datetime.utcnow().timestamp() > exp:
+                raise JWTError("Token expired")
+                
+            return payload
+            
+        except JWTError:
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid token"
+            )
+    ```
+  </Tab>
+</Tabs>
+
+## OAuth Integration
+
+### Google OAuth Flow
+
+<Steps>
+  <Step title="Initiate OAuth">
+    User clicks "Sign in with Google" button
+    ```javascript
+    window.location.href = '/api/auth/google';
+    ```
+  </Step>
+  
+  <Step title="Google Authorization">
+    User authorizes application on Google's consent screen
+    ```
+    https://accounts.google.com/oauth/authorize?
+      client_id=your_client_id&
+      redirect_uri=https://clipron.com/auth/google/callback&
+      scope=openid email profile&
+      response_type=code
+    ```
+  </Step>
+  
+  <Step title="Authorization Code Exchange">
+    Google redirects back with authorization code
+    ```python
+    @app.get("/auth/google/callback")
+    async def google_callback(code: str):
+        # Exchange code for tokens
+        token_response = await exchange_code_for_tokens(code)
+        user_info = await get_google_user_info(token_response.access_token)
+        
+        # Create or update user
+        user = await create_or_update_user(user_info)
+        
+        # Generate JWT tokens
+        access_token = create_access_token(user.id)
+        refresh_token = create_refresh_token(user.id)
+        
+        return {"access_token": access_token, "refresh_token": refresh_token}
+    ```
+  </Step>
+  
+  <Step title="User Session Creation">
+    Application creates user session with JWT tokens
+  </Step>
+</Steps>
+
+### GitHub OAuth Flow
+
+<Steps>
+  <Step title="GitHub Authorization">
+    Similar to Google OAuth but with GitHub-specific scopes
+    ```
+    https://github.com/login/oauth/authorize?
+      client_id=your_github_client_id&
+      redirect_uri=https://clipron.com/auth/github/callback&
+      scope=user:email repo&
+      state=random_state_string
+    ```
+  </Step>
+  
+  <Step title="Repository Access">
+    GitHub OAuth includes repository access permissions
+    ```python
+    # After successful OAuth
+    github_token = oauth_response.access_token
+    
+    # Store GitHub token for repository access
+    await store_github_token(user.id, github_token)
+    
+    # Fetch user's repositories
+    repos = await fetch_github_repositories(github_token)
+    await sync_user_repositories(user.id, repos)
+    ```
+  </Step>
+</Steps>
+
+## API Authentication
+
+### Authentication Headers
+
+<AccordionGroup>
+  <Accordion title="Bearer Token (Recommended)">
+    **Standard OAuth 2.0 Bearer token**
+    ```http
+    GET /api/user/profile HTTP/1.1
+    Host: clipron.com
+    Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    Content-Type: application/json
+    ```
+  </Accordion>
+  
+  <Accordion title="API Key (Alternative)">
+    **For server-to-server communication**
+    ```http
+    GET /api/analysis HTTP/1.1
+    Host: clipron.com
+    X-API-Key: clipron_api_key_your_key_here
+    Content-Type: application/json
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Authentication Middleware
+
+```python
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+security = HTTPBearer()
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Extract and validate user from JWT token"""
+    try:
+        payload = verify_token(credentials.credentials)
+        user_id = payload.get("sub")
+        
+        if user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token"
+            )
+            
+        user = await get_user_by_id(user_id)
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found"
+            )
+            
+        return user
+        
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token"
+        )
+
+# Usage in protected endpoints
+@app.get("/api/user/profile")
+async def get_profile(current_user: User = Depends(get_current_user)):
+    return current_user
+```
+
+## Authorization and Permissions
+
+### Role-Based Access Control
+
+<Tabs>
+  <Tab title="User Roles">
+    **Different access levels**
+    ```python
+    class UserRole(Enum):
+        FREE = "free"
+        PRO = "pro"
+        ENTERPRISE = "enterprise"
+        ADMIN = "admin"
+    
+    # Role-based permissions
+    ROLE_PERMISSIONS = {
+        UserRole.FREE: {
+            "analyses_per_month": 50,
+            "private_repos": False,
+            "api_access": False,
+            "priority_support": False
+        },
+        UserRole.PRO: {
+            "analyses_per_month": 500,
+            "private_repos": True,
+            "api_access": True,
+            "priority_support": True
+        },
+        UserRole.ENTERPRISE: {
+            "analyses_per_month": -1,  # Unlimited
+            "private_repos": True,
+            "api_access": True,
+            "priority_support": True,
+            "custom_integrations": True
+        }
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Permission Decorators">
+    **Endpoint protection**
+    ```python
+    def require_role(required_role: UserRole):
+        def decorator(func):
+            async def wrapper(*args, **kwargs):
+                current_user = kwargs.get('current_user')
+                if not current_user or current_user.role.value < required_role.value:
+                    raise HTTPException(
+                        status_code=403,
+                        detail="Insufficient permissions"
+                    )
+                return await func(*args, **kwargs)
+            return wrapper
+        return decorator
+    
+    @app.post("/api/analysis/private-repo")
+    @require_role(UserRole.PRO)
+    async def analyze_private_repo(
+        repo_data: dict,
+        current_user: User = Depends(get_current_user)
+    ):
+        # Only PRO and above can analyze private repos
+        pass
+    ```
+  </Tab>
+  
+  <Tab title="Resource Ownership">
+    **User-specific resource access**
+    ```python
+    async def verify_resource_ownership(
+        resource_id: str,
+        current_user: User,
+        resource_type: str
+    ):
+        """Verify user owns the requested resource"""
+        if resource_type == "analysis":
+            analysis = await get_analysis_by_id(resource_id)
+            if analysis.user_id != current_user.id:
+                raise HTTPException(
+                    status_code=403,
+                    detail="Access denied"
+                )
+        elif resource_type == "repository":
+            repo = await get_repository_by_id(resource_id)
+            if repo.user_id != current_user.id:
+                raise HTTPException(
+                    status_code=403,
+                    detail="Access denied"
+                )
+    ```
+  </Tab>
+</Tabs>
+
+## Security Features
+
+### Rate Limiting
+
+<AccordionGroup>
+  <Accordion title="Per-User Rate Limits">
+    **Prevent abuse and ensure fair usage**
+    ```python
+    from slowapi import Limiter, _rate_limit_exceeded_handler
+    from slowapi.util import get_remote_address
+    
+    limiter = Limiter(key_func=get_remote_address)
+    
+    @app.post("/api/analysis")
+    @limiter.limit("10/minute")  # 10 analyses per minute
+    async def create_analysis(
+        request: Request,
+        analysis_data: dict,
+        current_user: User = Depends(get_current_user)
+    ):
+        # Rate limited endpoint
+        pass
+    ```
+  </Accordion>
+  
+  <Accordion title="Token Blacklisting">
+    **Revoke compromised tokens**
+    ```python
+    # Store blacklisted tokens (in Redis or database)
+    blacklisted_tokens = set()
+    
+    def blacklist_token(token: str):
+        """Add token to blacklist"""
+        blacklisted_tokens.add(token)
+        # Also store in persistent storage
+        redis_client.sadd("blacklisted_tokens", token)
+    
+    def is_token_blacklisted(token: str) -> bool:
+        """Check if token is blacklisted"""
+        return token in blacklisted_tokens or \
+               redis_client.sismember("blacklisted_tokens", token)
+    ```
+  </Accordion>
+  
+  <Accordion title="Session Management">
+    **Track and manage user sessions**
+    ```python
+    class SessionManager:
+        def __init__(self):
+            self.active_sessions = {}
+        
+        async def create_session(self, user_id: str, token: str):
+            """Create new user session"""
+            session_id = generate_session_id()
+            self.active_sessions[session_id] = {
+                "user_id": user_id,
+                "token": token,
+                "created_at": datetime.utcnow(),
+                "last_activity": datetime.utcnow()
+            }
+            return session_id
+        
+        async def invalidate_user_sessions(self, user_id: str):
+            """Invalidate all sessions for a user"""
+            sessions_to_remove = [
+                sid for sid, session in self.active_sessions.items()
+                if session["user_id"] == user_id
+            ]
+            for sid in sessions_to_remove:
+                del self.active_sessions[sid]
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Error Handling
+
+### Authentication Errors
+
+<CardGroup cols={2}>
+  <Card title="401 Unauthorized" icon="x-circle">
+    **Missing or invalid token**
+    - Token expired
+    - Invalid signature
+    - Malformed token
+    - Missing Authorization header
+  </Card>
+  <Card title="403 Forbidden" icon="shield-x">
+    **Insufficient permissions**
+    - Role-based access denied
+    - Resource ownership violation
+    - Feature not available for user tier
+  </Card>
+</CardGroup>
+
+### Error Response Format
+
+```json
+{
+  "error": {
+    "code": "INVALID_TOKEN",
+    "message": "The provided token is invalid or expired",
+    "details": {
+      "reason": "token_expired",
+      "expired_at": "2024-01-01T12:00:00Z"
+    }
+  },
+  "request_id": "req_123456789"
+}
+```
+
+<Tip>
+  **Security Tip**: Always use HTTPS in production, store refresh tokens in secure HTTP-only cookies, and implement proper token rotation to maintain security.
+</Tip>

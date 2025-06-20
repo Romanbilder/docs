@@ -1,0 +1,307 @@
+---
+title: 'Your First Analysis'
+description: 'Step-by-step guide to running your first security analysis'
+---
+
+# Your First Analysis
+
+This guide walks you through running your first code security analysis with Clipron AI. We'll cover all the options and help you understand the results.
+
+## Before You Start
+
+Make sure you have:
+- ✅ Created and verified your Clipron AI account
+- ✅ Logged into your dashboard
+- ✅ Have some code ready to analyze (repository, files, or snippets)
+
+## Starting a New Analysis
+
+### From Your Dashboard
+
+<Steps>
+  <Step title="Access Dashboard">
+    Log into [clipron.com](https://clipron.com) and navigate to your main dashboard
+  </Step>
+  
+  <Step title="Click New Analysis">
+    Click the prominent **"New Analysis"** button in the center of your dashboard
+  </Step>
+  
+  <Step title="Choose Analysis Method">
+    Select how you want to provide your code for analysis
+  </Step>
+</Steps>
+
+## Code Input Methods
+
+### Method 1: GitHub Repository
+
+<Tabs>
+  <Tab title="Public Repository">
+    **Best for**: Open source projects, public code
+    
+    1. Select **"GitHub Repository"** tab
+    2. Enter the repository URL (e.g., `https://github.com/user/repo`)
+    3. Choose branch (defaults to main/master)
+    4. Select specific directories if needed
+    5. Click **"Load Repository"**
+  </Tab>
+  
+  <Tab title="Private Repository">
+    **Best for**: Your own projects, company code
+    
+    1. Ensure GitHub OAuth is connected
+    2. Select **"GitHub Repository"** tab
+    3. Choose from your accessible repositories
+    4. Select branch and directories
+    5. Click **"Load Repository"**
+    
+    <Note>
+      Private repository access requires GitHub OAuth authentication and appropriate permissions.
+    </Note>
+  </Tab>
+</Tabs>
+
+### Method 2: Direct Code Paste
+
+**Best for**: Code snippets, specific functions, quick tests
+
+<Steps>
+  <Step title="Select Paste Code">
+    Click the **"Paste Code"** tab in the analysis interface
+  </Step>
+  
+  <Step title="Choose Language">
+    Select your programming language from the dropdown for proper syntax highlighting
+  </Step>
+  
+  <Step title="Paste Your Code">
+    Copy and paste your code into the editor. The interface supports:
+    - Syntax highlighting for 50+ languages
+    - Line numbers for easy reference
+    - Code folding for large snippets
+  </Step>
+  
+  <Step title="Add Context (Optional)">
+    Provide additional context about the code's purpose or specific concerns
+  </Step>
+</Steps>
+
+### Method 3: File Upload
+
+**Best for**: Local files, multiple files, compressed archives
+
+<AccordionGroup>
+  <Accordion title="Single File Upload">
+    - Click **"Choose File"** button
+    - Select your code file (supports most programming languages)
+    - Maximum file size: 10MB
+    - Supported formats: .py, .js, .java, .cpp, .cs, .php, .rb, .go, etc.
+  </Accordion>
+  
+  <Accordion title="Multiple Files">
+    - Use Ctrl/Cmd+Click to select multiple files
+    - Or drag and drop multiple files into the upload area
+    - Files are analyzed as a cohesive project
+  </Accordion>
+  
+  <Accordion title="Archive Upload">
+    - Upload ZIP, TAR, or RAR archives
+    - Automatically extracts and analyzes all code files
+    - Maintains directory structure for context
+    - Maximum archive size: 50MB
+  </Accordion>
+</AccordionGroup>
+
+## Selecting Analysis Type
+
+Choose the right analysis level for your needs:
+
+<CardGroup cols={3}>
+  <Card title="Ron AI 2 Mini" icon="zap">
+    **Quick Scan**
+    - Cost: 2-5 credits
+    - Time: 30-60 seconds
+    - Model: Google Gemini Flash
+    - Best for: CI/CD, quick checks
+  </Card>
+  
+  <Card title="Ron AI 2 Standard" icon="search">
+    **Comprehensive Audit**
+    - Cost: 5-15 credits
+    - Time: 1-3 minutes
+    - Model: DeepSeek Coder V2
+    - Best for: Regular security audits
+  </Card>
+  
+  <Card title="Ron AI 2 Ultra" icon="microscope">
+    **Deep Analysis**
+    - Cost: 15-50 credits
+    - Time: 3-10 minutes
+    - Model: Claude 3.5 Sonnet
+    - Best for: Pre-production, critical code
+  </Card>
+</CardGroup>
+
+### Choosing the Right Analysis Type
+
+<Tabs>
+  <Tab title="For Beginners">
+    **Recommended**: Start with **Ron AI 2 Mini**
+    - Low cost to experiment
+    - Fast results
+    - Good overview of major issues
+    - Perfect for learning the platform
+  </Tab>
+  
+  <Tab title="For Regular Use">
+    **Recommended**: Use **Ron AI 2 Standard**
+    - Balanced cost and depth
+    - Comprehensive vulnerability detection
+    - Suitable for most development workflows
+    - Good for weekly/monthly audits
+  </Tab>
+  
+  <Tab title="For Critical Code">
+    **Recommended**: Use **Ron AI 2 Ultra**
+    - Maximum security depth
+    - Advanced threat modeling
+    - Detailed fix recommendations
+    - Essential before production deployment
+  </Tab>
+</Tabs>
+
+## Analysis Configuration
+
+### Advanced Options
+
+<AccordionGroup>
+  <Accordion title="Focus Areas">
+    Specify what to prioritize:
+    - **Security vulnerabilities**: SQL injection, XSS, etc.
+    - **Authentication issues**: Login, session management
+    - **Data handling**: Input validation, sanitization
+    - **Cryptography**: Encryption, hashing, key management
+  </Accordion>
+  
+  <Accordion title="Compliance Standards">
+    Check against specific standards:
+    - **OWASP Top 10**: Web application security
+    - **CWE**: Common Weakness Enumeration
+    - **SANS Top 25**: Most dangerous software errors
+    - **Custom rules**: Your organization's standards
+  </Accordion>
+  
+  <Accordion title="Exclusions">
+    Skip certain files or patterns:
+    - Test files (usually safe to exclude)
+    - Third-party libraries
+    - Generated code
+    - Documentation files
+  </Accordion>
+</AccordionGroup>
+
+## Running the Analysis
+
+<Steps>
+  <Step title="Review Settings">
+    Double-check your code input, analysis type, and configuration options
+  </Step>
+  
+  <Step title="Check Credit Cost">
+    Review the estimated credit cost displayed at the bottom of the form
+  </Step>
+  
+  <Step title="Start Analysis">
+    Click **"Start Security Analysis"** to begin the process
+  </Step>
+  
+  <Step title="Monitor Progress">
+    Watch the progress bar and status updates as your code is analyzed
+  </Step>
+</Steps>
+
+## Understanding the Progress
+
+During analysis, you'll see:
+
+1. **Preprocessing** (10-20%): Code is parsed and prepared
+2. **AI Analysis** (20-80%): Ron Cortex engine examines your code
+3. **Report Generation** (80-100%): Results are compiled and formatted
+
+<Warning>
+  Don't close your browser during analysis. While the process continues server-side, you'll need to refresh to see results.
+</Warning>
+
+## What Happens Next
+
+Once analysis completes:
+
+- **Instant notification**: Browser notification when ready
+- **Email alert**: Optional email with results summary
+- **Dashboard update**: Analysis appears in your history
+- **Detailed report**: Full security report with findings
+
+## Sample First Analysis
+
+Here's what a typical first analysis might look like:
+
+```json
+{
+  "analysis_id": "first-analysis-123",
+  "timestamp": "2024-06-18T10:30:00Z",
+  "code_source": "paste",
+  "analysis_type": "mini",
+  "credits_used": 3,
+  "security_score": 78,
+  "total_issues": 5,
+  "breakdown": {
+    "critical": 0,
+    "high": 1,
+    "medium": 2,
+    "low": 2
+  },
+  "top_issues": [
+    {
+      "type": "Input Validation",
+      "severity": "high",
+      "line": 42,
+      "description": "User input not sanitized before database query"
+    }
+  ]
+}
+```
+
+## Next Steps After Your First Analysis
+
+<CardGroup cols={2}>
+  <Card title="Review Results" icon="document-text" href="/guides/security-reports">
+    Learn how to interpret your security report and findings
+  </Card>
+  
+  <Card title="Fix Vulnerabilities" icon="wrench" href="/guides/fixing-vulnerabilities">
+    Step-by-step guides for fixing common security issues
+  </Card>
+  
+  <Card title="Set Up Automation" icon="robot" href="/guides/github-integration">
+    Automate security analysis for your repositories
+  </Card>
+  
+  <Card title="Explore API" icon="code" href="/api-reference/endpoints/analysis">
+    Integrate Clipron AI into your development workflow
+  </Card>
+</CardGroup>
+
+## Tips for Better Results
+
+<Tip>
+  **Include context**: Add comments explaining complex logic or business rules to help the AI understand your code better.
+</Tip>
+
+<Tip>
+  **Start small**: Begin with smaller code samples to understand how Clipron AI works before analyzing entire projects.
+</Tip>
+
+<Tip>
+  **Regular analysis**: Run security analysis regularly, not just before releases, to catch issues early.
+</Tip>

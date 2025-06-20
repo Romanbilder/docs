@@ -1,0 +1,413 @@
+---
+title: 'Documentation Development'
+description: 'How to contribute to and develop Clipron AI documentation'
+---
+
+# Documentation Development
+
+This guide explains how to contribute to the Clipron AI documentation, set up the development environment, and follow our documentation standards.
+
+<Info>
+  **Prerequisites**: Node.js 18+ and familiarity with Markdown/MDX syntax.
+</Info>
+
+## Getting Started
+
+### Setup Documentation Environment
+
+<Steps>
+  <Step title="Install Mintlify CLI">
+    <CodeGroup>
+    ```bash npm
+    npm i -g mintlify
+    ```
+
+    ```bash yarn
+    yarn global add mintlify
+    ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Clone Documentation Repository">
+    ```bash
+    git clone https://github.com/clipron/docs.git
+    cd docs
+    ```
+  </Step>
+
+  <Step title="Start Development Server">
+    ```bash
+    mintlify dev
+    ```
+
+    The documentation will be available at `http://localhost:3000`.
+  </Step>
+</Steps>
+
+### Custom Ports
+
+If port 3000 is in use, Mintlify will automatically find the next available port:
+
+```bash
+# Use specific port
+mintlify dev --port 3333
+
+# Auto-detect available port
+Port 3000 is already in use. Trying 3001 instead.
+```
+
+## Documentation Structure
+
+### File Organization
+
+```
+docs/
+├── docs.json                 # Configuration file
+├── index.mdx                # Homepage
+├── philosophy.mdx           # Core concepts
+├── quickstart.mdx           # Quick start guide
+├── getting-started/         # User onboarding
+├── deployment/              # Installation guides
+├── architecture/            # Technical architecture
+├── guides/                  # User guides
+├── api-reference/           # API documentation
+├── troubleshooting/         # Problem solving
+├── images/                  # Documentation images
+└── snippets/               # Reusable content
+```
+
+### Content Guidelines
+
+<AccordionGroup>
+  <Accordion title="Writing Style">
+    **Clear and concise technical writing**
+    - Use active voice
+    - Write in second person ("you")
+    - Keep sentences short and direct
+    - Use bullet points for lists
+    - Include code examples for technical concepts
+  </Accordion>
+
+  <Accordion title="Code Examples">
+    **Comprehensive and tested examples**
+    - Include multiple programming languages when relevant
+    - Test all code examples before publishing
+    - Use realistic, security-focused examples
+    - Include both success and error scenarios
+  </Accordion>
+
+  <Accordion title="Screenshots and Diagrams">
+    **Visual aids for complex concepts**
+    - Use high-resolution screenshots
+    - Include alt text for accessibility
+    - Create diagrams for architecture concepts
+    - Update images when UI changes
+  </Accordion>
+</AccordionGroup>
+
+## Contributing Guidelines
+
+### Documentation Standards
+
+<Tabs>
+  <Tab title="Markdown/MDX">
+    **Use MDX components for enhanced formatting**
+
+    ```mdx
+    # Use Mintlify components
+    <CardGroup cols={2}>
+      <Card title="Feature 1" icon="shield">
+        Description of security feature
+      </Card>
+      <Card title="Feature 2" icon="code">
+        Description of development feature
+      </Card>
+    </CardGroup>
+
+    # Use code groups for multiple languages
+    <CodeGroup>
+    ```bash cURL
+    curl -X POST "https://clipron.com/api/analysis"
+    ```
+
+    ```javascript JavaScript
+    const response = await fetch('/api/analysis', {
+      method: 'POST'
+    });
+    ```
+    </CodeGroup>
+    ```
+  </Tab>
+
+  <Tab title="API Documentation">
+    **Consistent API reference format**
+
+    ```mdx
+    ## Endpoint Name
+
+    Brief description of what the endpoint does.
+
+    ### Request
+    ```http
+    POST /api/endpoint
+    Content-Type: application/json
+    Authorization: Bearer <token>
+    ```
+
+    ### Parameters
+    | Parameter | Type | Required | Description |
+    |-----------|------|----------|-------------|
+    | `param1` | string | Yes | Parameter description |
+
+    ### Response
+    ```json
+    {
+      "success": true,
+      "data": {}
+    }
+    ```
+    ```
+  </Tab>
+
+  <Tab title="Error Handling">
+    **Document error scenarios**
+
+    ```mdx
+    ### Error Responses
+
+    <AccordionGroup>
+      <Accordion title="400 Bad Request">
+        ```json
+        {
+          "error": {
+            "code": "INVALID_REQUEST",
+            "message": "Request validation failed"
+          }
+        }
+        ```
+      </Accordion>
+    </AccordionGroup>
+    ```
+  </Tab>
+</Tabs>
+
+### Review Process
+
+<Steps>
+  <Step title="Create Feature Branch">
+    ```bash
+    git checkout -b docs/feature-name
+    ```
+  </Step>
+
+  <Step title="Make Changes">
+    - Edit documentation files
+    - Test locally with `mintlify dev`
+    - Validate links with `mintlify broken-links`
+  </Step>
+
+  <Step title="Submit Pull Request">
+    - Include clear description of changes
+    - Add screenshots for UI changes
+    - Request review from documentation team
+  </Step>
+
+  <Step title="Address Feedback">
+    - Respond to review comments
+    - Make requested changes
+    - Re-request review when ready
+  </Step>
+</Steps>
+
+## Advanced Features
+
+### Custom Components
+
+<AccordionGroup>
+  <Accordion title="Security Callouts">
+    **Highlight security-related information**
+
+    ```mdx
+    <Warning>
+      Never commit API keys to version control
+    </Warning>
+
+    <Tip>
+      Use environment variables for sensitive configuration
+    </Tip>
+
+    <Note>
+      This feature requires Pro subscription
+    </Note>
+    ```
+  </Accordion>
+
+  <Accordion title="Interactive Elements">
+    **Enhance user engagement**
+
+    ```mdx
+    <Steps>
+      <Step title="First Step">
+        Description of first step
+      </Step>
+      <Step title="Second Step">
+        Description of second step
+      </Step>
+    </Steps>
+
+    <Tabs>
+      <Tab title="Option 1">
+        Content for first option
+      </Tab>
+      <Tab title="Option 2">
+        Content for second option
+      </Tab>
+    </Tabs>
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Link Validation
+
+Regularly validate documentation links:
+
+```bash
+# Check for broken links
+mintlify broken-links
+
+# Check specific files
+mintlify broken-links --files="api-reference/**/*.mdx"
+```
+
+## Deployment
+
+### Automatic Deployment
+
+Documentation is automatically deployed when changes are merged to the main branch:
+
+<Steps>
+  <Step title="GitHub Actions">
+    Automated build and deployment pipeline
+  </Step>
+
+  <Step title="Mintlify Hosting">
+    Documentation hosted on Mintlify's CDN
+  </Step>
+
+  <Step title="Custom Domain">
+    Available at docs.clipron.com
+  </Step>
+</Steps>
+
+### Manual Deployment
+
+For testing deployment locally:
+
+```bash
+# Build documentation
+mintlify build
+
+# Preview build
+mintlify preview
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Build Errors">
+    **Common build issues and solutions**
+
+    ```bash
+    # Clear Mintlify cache
+    rm -rf ~/.mintlify
+
+    # Reinstall CLI
+    npm uninstall -g mintlify
+    npm install -g mintlify@latest
+
+    # Check Node.js version
+    node --version  # Should be 18+
+    ```
+  </Accordion>
+
+  <Accordion title="MDX Syntax Errors">
+    **Fix common MDX issues**
+
+    - Ensure proper component closing tags
+    - Check for unescaped special characters
+    - Validate JSON in code blocks
+    - Use proper frontmatter format
+  </Accordion>
+
+  <Accordion title="Link Validation Issues">
+    **Resolve broken links**
+
+    ```bash
+    # Find broken internal links
+    grep -r "\[.*\](/" . --include="*.mdx"
+
+    # Check external links manually
+    curl -I https://external-link.com
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+### Content Organization
+
+<CardGroup cols={2}>
+  <Card title="Logical Structure" icon="hierarchy">
+    Organize content in a logical hierarchy that matches user workflows
+  </Card>
+  <Card title="Cross-References" icon="link">
+    Link related concepts and provide clear navigation paths
+  </Card>
+  <Card title="Search Optimization" icon="search">
+    Use descriptive headings and include relevant keywords
+  </Card>
+  <Card title="Mobile-Friendly" icon="mobile">
+    Ensure content works well on mobile devices
+  </Card>
+</CardGroup>
+
+### Maintenance
+
+<AccordionGroup>
+  <Accordion title="Regular Updates">
+    **Keep documentation current**
+    - Review quarterly for accuracy
+    - Update screenshots when UI changes
+    - Validate external links monthly
+    - Update API examples with new features
+  </Accordion>
+
+  <Accordion title="User Feedback">
+    **Incorporate user suggestions**
+    - Monitor support tickets for documentation gaps
+    - Add FAQ items based on common questions
+    - Improve unclear sections based on feedback
+    - Track documentation analytics
+  </Accordion>
+</AccordionGroup>
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="Mintlify Documentation" icon="book" href="https://mintlify.com/docs">
+    Official Mintlify documentation and component reference
+  </Card>
+  <Card title="MDX Documentation" icon="markdown" href="https://mdxjs.com/">
+    Learn about MDX syntax and capabilities
+  </Card>
+  <Card title="Style Guide" icon="palette" href="/contributing/style-guide">
+    Clipron AI documentation style guide and standards
+  </Card>
+  <Card title="Component Library" icon="puzzle-piece" href="/contributing/components">
+    Available Mintlify components and usage examples
+  </Card>
+</CardGroup>
+
+<Tip>
+  **Documentation Tip**: Always test your changes locally before submitting a pull request. Use `mintlify dev` to preview changes and `mintlify broken-links` to validate all links.
+</Tip>
